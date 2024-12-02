@@ -9,28 +9,27 @@ namespace InsuranceProject.Services
 {
     public class PolicyService : IPolicyService
     {
-        private readonly IRepository<Policy> _repository;
+        private readonly IRepository<Policy> _policyRepository;
         private readonly IMapper _mapper;
 
         public PolicyService(IRepository<Policy> repository, IMapper mapper)
         {
-            _repository = repository;
+            _policyRepository = repository;
             _mapper = mapper;
         }
-        public Guid Add(PolicyDto policyDto)
+        public Guid Add(PolicyDto policydto)
         {
-            var policy = _mapper.Map<Policy>(policyDto);
-            _repository.Add(policy);
-            return policy.PolicyId;
+            var policy = _mapper.Map<Policy>(policydto);
+            _policyRepository.Add(policy);
+            return policy.Id;
         }
 
-        public bool Delete(PolicyDto policyDto)
+        public bool Delete(Guid id)
         {
-            var policy = _mapper.Map<Policy>(policyDto);
-            var existingPolicy = _repository.GetById(policy.PolicyId);
-            if (existingPolicy != null)
+            var policy = _policyRepository.Get(id);
+            if (policy != null)
             {
-                _repository.Delete(existingPolicy);
+                _policyRepository.Delete(policy);
                 return true;
             }
             return false;
@@ -38,32 +37,32 @@ namespace InsuranceProject.Services
 
         public PolicyDto Get(Guid id)
         {
-            var policy = _repository.GetById(id);
-            if (policy == null)
+            var policy = _policyRepository.Get(id);
+            if (policy != null)
             {
-                throw new PolicyNotFoundException("Policy Not Found");
+                var policydto = _mapper.Map<PolicyDto>(policy);
+                return policydto;
             }
-            var policyDto = _mapper.Map<PolicyDto>(policy);
-            return policyDto;
+            throw new Exception("No such policy exist");
         }
 
         public List<PolicyDto> GetAll()
         {
-            var policies = _repository.GetAll().ToList();
-            List<PolicyDto> result = _mapper.Map<List<PolicyDto>>(policies);
-            return result;
+            var policies = _policyRepository.GetAll().ToList();
+            var policydtos = _mapper.Map<List<PolicyDto>>(policies);
+            return policydtos;
         }
 
-        public PolicyDto Update(PolicyDto policyDto)
+        public bool Update(PolicyDto policydto)
         {
-            var existingPolicy = _mapper.Map<Policy>(policyDto);
-            var updatedPolicy = _repository.GetAll().AsNoTracking().FirstOrDefault(x => x.PolicyId == existingPolicy.PolicyId);
-            if (updatedPolicy != null)
+            var existingPolicy = _policyRepository.Get(policydto.Id);
+            if (existingPolicy != null)
             {
-                _repository.Update(updatedPolicy);
+                var policy = _mapper.Map<Policy>(policydto);
+                _policyRepository.Update(policy);
+                return true;
             }
-            var updatedPolicyDto = _mapper.Map<PolicyDto>(updatedPolicy);
-            return updatedPolicyDto;
+            return false;
         }
     }
 }

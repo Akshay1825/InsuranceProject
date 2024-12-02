@@ -146,9 +146,9 @@ namespace InsuranceProject.Migrations
                     MobileNumber = table.Column<long>(type: "bigint", nullable: false),
                     State = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     City = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Nominee = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    NomineeRelation = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Nominee = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NomineeRelation = table.Column<string>(type: "nvarchar(max)", nullable:true),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AgentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AdminId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)

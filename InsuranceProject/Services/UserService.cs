@@ -11,59 +11,59 @@ namespace InsuranceProject.Services
     {
         private readonly IRepository<User> _repository;
         private readonly IMapper _mapper;
-
         public UserService(IRepository<User> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
         }
-        public Guid Add(UserDto userDto)
+
+        public Guid AddUser(UserDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
             _repository.Add(user);
-            return user.UserId;
+            return user.Id;
         }
 
-        public bool Delete(UserDto userDto)
+        public bool DeleteUser(Guid id)
         {
-            var user = _mapper.Map<User>(userDto);
-            var existingUser = _repository.GetById(user.UserId);
-            if (existingUser != null)
+            var user = _repository.Get(id);
+            if (user != null)
             {
-                _repository.Delete(existingUser);
+                _repository.Delete(user);
                 return true;
             }
             return false;
+
         }
 
-        public UserDto Get(Guid id)
+        public User GetById(Guid id)
         {
-            var user = _repository.GetById(id);
-            if (user == null)
+            return _repository.Get(id);
+        }
+
+        public List<UserDto> GetUsers()
+        {
+            var user = _repository.GetAll().ToList();
+            List<UserDto> userDtos = _mapper.Map<List<UserDto>>(user);
+            return userDtos;
+        }
+
+        public bool UpdateUser(UserDto userDto)
+        {
+            var existingUser = _repository.GetAll().AsNoTracking().Where(u => u.Id == userDto.Id);
+            if (existingUser != null)
             {
-                throw new UserNotFoundException("User Not Found");
+                var user = _mapper.Map<User>(userDto);
+                _repository.Update(user);
+                return true;
             }
-            var userDto = _mapper.Map<UserDto>(user);
-            return userDto;
+            return false;
+
         }
 
-        public List<UserDto> GetAll()
+        public User FindUserByName(string userName)
         {
-            var users = _repository.GetAll().ToList();
-            List<UserDto> result = _mapper.Map<List<UserDto>>(users);
-            return result;
-        }
-
-        public UserDto Update(UserDto userDto)
-        {
-            var existingUser = _mapper.Map<User>(userDto);
-            var updatedUser = _repository.GetAll().AsNoTracking().FirstOrDefault(x => x.UserId == existingUser.UserId);
-            if (updatedUser != null)
-            {
-                _repository.Update(updatedUser);
-            }
-            var updatedUserDto = _mapper.Map<UserDto>(updatedUser);
-            return updatedUserDto;
+            return _repository.GetAll().Include(u => u.Role).Where(u => u.UserName == userName).FirstOrDefault();
         }
     }
 }

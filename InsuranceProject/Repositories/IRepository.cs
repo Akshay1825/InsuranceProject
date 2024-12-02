@@ -2,10 +2,10 @@
 {
     public interface IRepository<T>
     {
-        public IQueryable<T> GetAll();
-        public T GetById(Guid id);
         public void Add(T entity);
+        public IQueryable<T> GetAll();
         public void Update(T entity);
-        public void Delete(T entity);
+        public T Get(Guid id);
+        public int Delete(T entity);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using InsuranceProject.Data;
 using InsuranceProject.DTOs;
 using InsuranceProject.Exceptions;
 using InsuranceProject.Models;
@@ -11,27 +12,48 @@ namespace InsuranceProject.Services
     {
         private readonly IRepository<Admin> _repository;
         private readonly IMapper _mapper;
+        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Role> _roleRepository;
+        private Guid _roleId = new Guid("8c1bc05b-21a8-4b86-50bc-08dd115dd6c7");
 
-        public AdminService(IRepository<Admin> repository, IMapper mapper)
+        public AdminService(IRepository<Admin> repository, IMapper mapper, IRepository<User> userRepository, IRepository<Role> roleRepository)
         {
             _repository = repository;
             _mapper = mapper;
+            _userRepository = userRepository;
+            _roleRepository = roleRepository;
         }
-
-        public Guid Add(AdminDto adminDto)
+        public Guid Add(AdminRegisterDto adminRgisterDto)
         {
-            var admin = _mapper.Map<Admin>(adminDto);
+            var user = new User()
+            {
+                UserName = adminRgisterDto.UserName,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminRgisterDto.Password),
+                RoleId = _roleId,
+                Status = true
+            };
+            _userRepository.Add(user);
+
+            var role = _roleRepository.Get(_roleId);
+
+            if (role.Users == null)
+            {
+                role.Users = new List<User>();
+            }
+            role.Users.Add(user);
+            adminRgisterDto.UserId = user.Id;
+
+            var admin = _mapper.Map<Admin>(adminRgisterDto);
             _repository.Add(admin);
             return admin.Id;
         }
 
-        public bool Delete(AdminDto adminDto)
+        public bool Delete(Guid id)
         {
-            var admin = _mapper.Map<Admin>(adminDto);
-            var existingAdmin = _repository.GetById(admin.Id);
-            if (existingAdmin != null)
+            var admin = _repository.Get(id);
+            if (admin != null)
             {
-                _repository.Delete(existingAdmin);
+                _repository.Delete(admin);
                 return true;
             }
             return false;
@@ -39,32 +61,32 @@ namespace InsuranceProject.Services
 
         public AdminDto Get(Guid id)
         {
-            var admin = _repository.GetById(id);
-            if (admin == null)
+            var admin = _repository.Get(id);
+            if (admin != null)
             {
-                throw new AdminNotFoundException("Admin Not Found");
+                var adminDto = _mapper.Map<AdminDto>(admin);
+                return adminDto;
             }
-            var adminDto = _mapper.Map<AdminDto>(admin);
-            return adminDto;
+            throw new Exception("No such admin exist");
         }
 
         public List<AdminDto> GetAll()
         {
-            var admins = _repository.GetAll().ToList();
-            List<AdminDto> result = _mapper.Map<List<AdminDto>>(admins);
-            return result;
+            var admins = _repository.GetAll();
+            var adminDtos = _mapper.Map<List<AdminDto>>(admins);
+            return adminDtos;
         }
 
-        public AdminDto Update(AdminDto adminDto)
+        public bool Update(AdminDto adminDto)
         {
-            var existingAdmin = _mapper.Map<Admin>(adminDto);
-            var updatedAdmin = _repository.GetAll().AsNoTracking().FirstOrDefault(x => x.Id == existingAdmin.Id);
-            if (updatedAdmin != null)
+            var existingAdmin = _repository.GetAll().AsNoTracking().Where(u => u.Id == adminDto.Id);
+            if (existingAdmin != null)
             {
-                _repository.Update(updatedAdmin);
+                var admin = _mapper.Map<Admin>(adminDto);
+                _repository.Update(admin);
+                return true;
             }
-            var updatedAdminDto = _mapper.Map<AdminDto>(updatedAdmin);
-            return updatedAdminDto;
+            return false;
         }
     }
 }

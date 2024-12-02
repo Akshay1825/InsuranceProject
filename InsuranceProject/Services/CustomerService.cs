@@ -9,61 +9,114 @@ namespace InsuranceProject.Services
 {
     public class CustomerService : ICustomerService
     {
+        private Guid _roleId = new Guid("74c70ef9-b3f4-4e6d-50bb-08dd115dd6c7");
         private readonly IRepository<Customer> _repository;
+        private readonly IRepository<Role> _roleRepository;
+        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<PolicyAccount> _policyAccountRepository;
         private readonly IMapper _mapper;
-
-        public CustomerService(IRepository<Customer> repository, IMapper mapper)
+        public CustomerService(IRepository<Customer> cutomerRepository, IMapper mapper, IRepository<Role> roleRepository, IRepository<User> userRepository, IRepository<PolicyAccount> policyAccountRepository)
         {
-            _repository = repository;
             _mapper = mapper;
+            _repository = cutomerRepository;
+            _roleRepository = roleRepository;
+            _userRepository = userRepository;
+            _policyAccountRepository = policyAccountRepository;
         }
-        public Guid Add(CustomerDto customerDto)
+
+        public Guid AddCustomer(CustomerRegistrationDto customerRegistrationDto)
         {
-            var customer = _mapper.Map<Customer>(customerDto);
+            // Create user
+            var user = new User
+            {
+                RoleId = _roleId,
+                UserName = customerRegistrationDto.UserName,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(customerRegistrationDto.Password),
+                Status = true
+            };
+            _userRepository.Add(user);
+
+            // Retrieve and validate role
+            var role = _roleRepository.Get(_roleId);
+            if (role == null)
+            {
+                throw new Exception($"Role with ID {_roleId} not found.");
+            }
+
+            role.Users ??= new List<User>(); // Ensure Users is initialized
+            role.Users.Add(user);
+
+            // Map and save customer
+            customerRegistrationDto.UserId = user.Id;
+            var customer = _mapper.Map<Customer>(customerRegistrationDto);
             _repository.Add(customer);
+
+            // Ensure CustomerId is valid before returning
+            if (customer.CustomerId == Guid.Empty)
+            {
+                throw new Exception("Failed to generate CustomerId.");
+            }
+
             return customer.CustomerId;
         }
-
-        public bool Delete(CustomerDto customerDto)
+        public Guid AddPolicyAccount(PolicyAccountDto policyAccountDto)
         {
-            var customer = _mapper.Map<Customer>(customerDto);
-            var existingCustomer = _repository.GetById(customer.CustomerId);
-            if (existingCustomer != null)
+            var policyAccont = _mapper.Map<PolicyAccount>(policyAccountDto);
+            _policyAccountRepository.Add(policyAccont);
+            var customer = _repository.Get(policyAccont.CustomerId);
+            customer.PolicyAccount = policyAccont;
+            _repository.Update(customer);
+            return policyAccont.Id;
+        }
+        public bool ChangePassword(ChangePasswordDto passwordDto)
+        {
+            var customer = _repository.GetAll().AsNoTracking().Include(a => a.User).Where(a => a.User.UserName == passwordDto.UserName).FirstOrDefault();
+            if (customer != null)
             {
-                _repository.Delete(existingCustomer);
+                if (BCrypt.Net.BCrypt.Verify(passwordDto.Password, customer.User.PasswordHash))
+                {
+                    customer.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwordDto.NewPassword);
+                    _repository.Update(customer);
+                    return true;
+                }
+
+            }
+            return false;
+        }
+
+        public bool DeleteCustomer(Guid id)
+        {
+            var customer = _repository.Get(id);
+            if (customer != null)
+            {
+                _repository.Delete(customer);
                 return true;
             }
             return false;
         }
 
-        public CustomerDto Get(Guid id)
+        public Customer GetById(Guid id)
         {
-            var customer = _repository.GetById(id);
-            if (customer == null)
-            {
-                throw new CustomerNotFoundException("Customer Not Found");
-            }
-            var customerDto = _mapper.Map<CustomerDto>(customer);
-            return customerDto;
+            return _repository.Get(id);
         }
 
-        public List<CustomerDto> GetAll()
+        public List<CustomerDto> GetCustomers()
         {
-            var customers = _repository.GetAll().ToList();
-            List<CustomerDto> result = _mapper.Map<List<CustomerDto>>(customers);
-            return result;
+            var customer = _repository.GetAll().AsNoTracking().Include(p => p.PolicyAccount).ToList();
+            List<CustomerDto> customerDtos = _mapper.Map<List<CustomerDto>>(customer);
+            return customerDtos;
         }
 
-        public CustomerDto Update(CustomerDto customerDto)
+        public bool UpdateCustomer(CustomerDto customerDto)
         {
-            var existingCustomer = _mapper.Map<Customer>(customerDto);
-            var updatedCustomer = _repository.GetAll().AsNoTracking().FirstOrDefault(x => x.CustomerId == existingCustomer.CustomerId);
-            if (updatedCustomer != null)
+            var existingCustomer = _repository.GetAll().AsNoTracking().Where(u => u.CustomerId == customerDto.CustomerId);
+            if (existingCustomer != null)
             {
-                _repository.Update(updatedCustomer);
+                var customer = _mapper.Map<Customer>(customerDto);
+                _repository.Update(customer);
+                return true;
             }
-            var updatedCustomerDto = _mapper.Map<CustomerDto>(updatedCustomer);
-            return updatedCustomerDto;
+            return false;
         }
     }
 }

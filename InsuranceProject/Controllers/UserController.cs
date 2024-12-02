@@ -10,48 +10,51 @@ namespace InsuranceProject.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-
-        public UserController(IUserService userService)
+        private readonly IConfiguration _configuration;
+        public UserController(IUserService userService, IConfiguration configuration)
         {
             _userService = userService;
+            _configuration = configuration;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var userDTOs = _userService.GetAll();
-            return Ok(userDTOs);
-        }
-
-        [HttpGet("{id}")]
-        public IActionResult Get(Guid id)
-        {
-            var existingUserDTO = _userService.Get(id);
-            return Ok(existingUserDTO);
+            var userDtos = _userService.GetUsers();
+            return Ok(userDtos);
         }
 
         [HttpPost]
         public IActionResult Add(UserDto userDto)
         {
-            var newUserId = _userService.Add(userDto);
-            return Ok(newUserId);
+            var id = _userService.AddUser(userDto);
+            return Ok(id);
         }
 
+        [HttpGet("{id}")]
+        public IActionResult Get(Guid id)
+        {
+            var user = _userService.GetById(id);
+            return Ok(user);
+        }
         [HttpPut]
         public IActionResult Update(UserDto userDto)
         {
-            var UpdatedUserDTO = _userService.Update(userDto);
-            if (UpdatedUserDTO != null)
-                return Ok(UpdatedUserDTO);
-            return NotFound("User Not Found");
+            if (_userService.UpdateUser(userDto))
+            {
+                return Ok(userDto);
+            }
+            return NotFound();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(UserDto userDto)
+        public IActionResult Delete(Guid id)
         {
-            if (_userService.Delete(userDto))
-                return Ok("User Deleted Successfully");
-            return NotFound("User Not Found");
+            if (_userService.DeleteUser(id))
+            {
+                return Ok(id);
+            }
+            return NotFound();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using InsuranceProject.Types;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 
 namespace InsuranceProject.Models
@@ -6,10 +7,9 @@ namespace InsuranceProject.Models
     public class Role
     {
         [Key]
-        public Guid RoleId { get; set; }
-
+        public Guid Id { get; set; }
         [Required]
-        public Role RoleName { get; set; }
-        public bool Status { get; set; }
+        public Roles RoleName { get; set; }
+        public List<User> Users { get; set; }
     }
 }

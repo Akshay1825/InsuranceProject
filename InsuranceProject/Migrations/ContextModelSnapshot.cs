@@ -22,6 +22,21 @@ namespace InsuranceProject.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("CustomerPolicy", b =>
+                {
+                    b.Property<Guid>("CustomersCustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PoliciesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CustomersCustomerId", "PoliciesId");
+
+                    b.HasIndex("PoliciesId");
+
+                    b.ToTable("CustomerPolicy");
+                });
+
             modelBuilder.Entity("InsuranceProject.Models.Admin", b =>
                 {
                     b.Property<Guid>("Id")
@@ -38,7 +53,7 @@ namespace InsuranceProject.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -50,14 +65,14 @@ namespace InsuranceProject.Migrations
 
             modelBuilder.Entity("InsuranceProject.Models.Agent", b =>
                 {
-                    b.Property<Guid>("AgentId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("AdminId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("CommisionEarned")
+                    b.Property<double?>("CommisionEarned")
                         .HasColumnType("float");
 
                     b.Property<string>("Email")
@@ -84,10 +99,16 @@ namespace InsuranceProject.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<double?>("TotalCommissionEarned")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("TotalWithdrawalAmount")
+                        .HasColumnType("float");
+
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("AgentId");
+                    b.HasKey("Id");
 
                     b.HasIndex("AdminId");
 
@@ -96,6 +117,26 @@ namespace InsuranceProject.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Agents");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.City", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("StateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StateId");
+
+                    b.ToTable("Cities");
                 });
 
             modelBuilder.Entity("InsuranceProject.Models.Customer", b =>
@@ -135,11 +176,9 @@ namespace InsuranceProject.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Nominee")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NomineeRelation")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("State")
@@ -164,7 +203,7 @@ namespace InsuranceProject.Migrations
 
             modelBuilder.Entity("InsuranceProject.Models.Document", b =>
                 {
-                    b.Property<Guid>("DocumentId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -179,7 +218,7 @@ namespace InsuranceProject.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("DocumentId");
+                    b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
 
@@ -188,7 +227,7 @@ namespace InsuranceProject.Migrations
 
             modelBuilder.Entity("InsuranceProject.Models.Employee", b =>
                 {
-                    b.Property<Guid>("EmployeeId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -215,10 +254,10 @@ namespace InsuranceProject.Migrations
                     b.Property<double>("Salary")
                         .HasColumnType("float");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("EmployeeId");
+                    b.HasKey("Id");
 
                     b.HasIndex("AdminId");
 
@@ -229,85 +268,169 @@ namespace InsuranceProject.Migrations
 
             modelBuilder.Entity("InsuranceProject.Models.Policy", b =>
                 {
-                    b.Property<Guid>("PolicyId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("AdminId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("PolicyDescription")
+                    b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("PolicyName")
+                    b.Property<int>("DocumentType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InstallmentCommisionRatio")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaxAge")
+                        .HasColumnType("int");
+
+                    b.Property<double>("MaxAmount")
+                        .HasColumnType("float");
+
+                    b.Property<int>("MaxPolicyTerm")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinAge")
+                        .HasColumnType("int");
+
+                    b.Property<double>("MinAmount")
+                        .HasColumnType("float");
+
+                    b.Property<int>("MinPolicyTerm")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("PolicyStatus")
+                        .HasColumnType("bit");
+
+                    b.Property<double>("RegistrationCommisionAmount")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("PolicyId");
+                    b.Property<int>("policyRatio")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("AdminId");
-
-                    b.HasIndex("CustomerId");
 
                     b.ToTable("Policies");
                 });
 
-            modelBuilder.Entity("InsuranceProject.Models.Role", b =>
+            modelBuilder.Entity("InsuranceProject.Models.PolicyAccount", b =>
                 {
-                    b.Property<Guid>("RoleId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("RoleNameRoleId")
+                    b.Property<long>("AccountNumber")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
+                    b.Property<string>("IFSC")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("RoleId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("RoleNameRoleId");
+                    b.HasIndex("CustomerId")
+                        .IsUnique();
+
+                    b.ToTable("PolicyAccounts");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.Role", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("RoleName")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("InsuranceProject.Models.User", b =>
+            modelBuilder.Entity("InsuranceProject.Models.State", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("States");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
 
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("UserId");
+                    b.HasKey("Id");
 
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("CustomerPolicy", b =>
+                {
+                    b.HasOne("InsuranceProject.Models.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomersCustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InsuranceProject.Models.Policy", null)
+                        .WithMany()
+                        .HasForeignKey("PoliciesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("InsuranceProject.Models.Admin", b =>
                 {
                     b.HasOne("InsuranceProject.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -324,11 +447,16 @@ namespace InsuranceProject.Migrations
 
                     b.HasOne("InsuranceProject.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.City", b =>
+                {
+                    b.HasOne("InsuranceProject.Models.State", null)
+                        .WithMany("Cities")
+                        .HasForeignKey("StateId");
                 });
 
             modelBuilder.Entity("InsuranceProject.Models.Customer", b =>
@@ -375,9 +503,7 @@ namespace InsuranceProject.Migrations
 
                     b.HasOne("InsuranceProject.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -387,27 +513,23 @@ namespace InsuranceProject.Migrations
                     b.HasOne("InsuranceProject.Models.Admin", null)
                         .WithMany("Policies")
                         .HasForeignKey("AdminId");
-
-                    b.HasOne("InsuranceProject.Models.Customer", null)
-                        .WithMany("Policies")
-                        .HasForeignKey("CustomerId");
                 });
 
-            modelBuilder.Entity("InsuranceProject.Models.Role", b =>
+            modelBuilder.Entity("InsuranceProject.Models.PolicyAccount", b =>
                 {
-                    b.HasOne("InsuranceProject.Models.Role", "RoleName")
-                        .WithMany()
-                        .HasForeignKey("RoleNameRoleId")
+                    b.HasOne("InsuranceProject.Models.Customer", "Customer")
+                        .WithOne("PolicyAccount")
+                        .HasForeignKey("InsuranceProject.Models.PolicyAccount", "CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("RoleName");
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("InsuranceProject.Models.User", b =>
                 {
                     b.HasOne("InsuranceProject.Models.Role", "Role")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -435,7 +557,7 @@ namespace InsuranceProject.Migrations
                 {
                     b.Navigation("Documents");
 
-                    b.Navigation("Policies");
+                    b.Navigation("PolicyAccount");
                 });
 
             modelBuilder.Entity("InsuranceProject.Models.Employee", b =>
@@ -443,6 +565,16 @@ namespace InsuranceProject.Migrations
                     b.Navigation("Agents");
 
                     b.Navigation("Customers");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.Role", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.State", b =>
+                {
+                    b.Navigation("Cities");
                 });
 #pragma warning restore 612, 618
         }

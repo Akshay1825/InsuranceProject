@@ -10,60 +10,26 @@ namespace InsuranceProject.Services
     public class DocumentService : IDocumentService
     {
         private readonly IRepository<Document> _repository;
-        private readonly IMapper _mapper;
 
-        public DocumentService(IRepository<Document> repository, IMapper mapper)
+        public DocumentService(IRepository<Document> repository)
         {
             _repository = repository;
-            _mapper = mapper;
         }
-        public Guid Add(DocumentDto documentDto)
+        public Guid Add(Document document)
         {
-            var document = _mapper.Map<Document>(documentDto);
             _repository.Add(document);
-            return document.DocumentId;
+            return document.Id;
         }
 
-        public bool Delete(DocumentDto documentDto)
+        public bool Delete(Guid id)
         {
-            var document = _mapper.Map<Document>(documentDto);
-            var existingDocument = _repository.GetById(document.DocumentId);
-            if (existingDocument != null)
+            var document = _repository.Get(id);
+            if (document != null)
             {
-                _repository.Delete(existingDocument);
+                _repository.Delete(document);
                 return true;
             }
             return false;
-        }
-
-        public DocumentDto Get(Guid id)
-        {
-            var document = _repository.GetById(id);
-            if (document == null)
-            {
-                throw new DocumentNotFoundException("Document Not Found");
-            }
-            var documentDto = _mapper.Map<DocumentDto>(document);
-            return documentDto;
-        }
-
-        public List<DocumentDto> GetAll()
-        {
-            var documents = _repository.GetAll().ToList();
-            List<DocumentDto> result = _mapper.Map<List<DocumentDto>>(documents);
-            return result;
-        }
-
-        public DocumentDto Update(DocumentDto documentDto)
-        {
-            var existingDocument = _mapper.Map<Document>(documentDto);
-            var updatedDocument = _repository.GetAll().AsNoTracking().FirstOrDefault(x => x.DocumentId == existingDocument.DocumentId);
-            if (updatedDocument != null)
-            {
-                _repository.Update(updatedDocument);
-            }
-            var updatedDocumentDto = _mapper.Map<DocumentDto>(updatedDocument);
-            return updatedDocumentDto;
         }
     }
 }

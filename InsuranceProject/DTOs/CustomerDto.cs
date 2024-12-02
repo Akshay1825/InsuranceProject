@@ -6,7 +6,6 @@ namespace InsuranceProject.DTOs
 {
     public class CustomerDto
     {
-        [Key]
         public Guid CustomerId { get; set; }
         [Required]
         [StringLength(15, ErrorMessage = "First name should not greater than 15")]
@@ -24,13 +23,11 @@ namespace InsuranceProject.DTOs
         public string City { get; set; }
         public string Nominee { get; set; }
         public string NomineeRelation { get; set; }
-        public User User { get; set; }
-        [ForeignKey("User")]
+
         public Guid UserId { get; set; }
-
-        public Agent? Agent { get; set; }
-        public List<Document> Documents { get; set; }
-
-        public List<Policy> Policies { get; set; }
+        public Guid? AgentId { get; set; }
+        public int TotalDocuments { get; set; }
+        public PolicyAccount? PolicyAccount { get; set; }
+        public int TotalPolicies { get; set; }
     }
 }

@@ -10,48 +10,56 @@ namespace InsuranceProject.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
+        private readonly IPolicyService _policyService;
 
-        public AdminController(IAdminService adminService)
+        public AdminController(IAdminService adminService, IPolicyService policyService)
         {
             _adminService = adminService;
+            _policyService = policyService;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var adminDTOs = _adminService.GetAll();
-            return Ok(adminDTOs);
+            var admins = _adminService.GetAll();
+            return Ok(admins);
         }
 
         [HttpGet("{id}")]
         public IActionResult Get(Guid id)
         {
-            var existingAdminDTO = _adminService.Get(id);
-            return Ok(existingAdminDTO);
+            var admin = _adminService.Get(id);
+            return Ok(admin);
         }
 
         [HttpPost]
-        public IActionResult Add(AdminDto adminDto)
+        public IActionResult Add(AdminRegisterDto adminregisterDto)
         {
-            var newAdminId = _adminService.Add(adminDto);
-            return Ok(newAdminId);
+            var adminId = _adminService.Add(adminregisterDto);
+            return Ok(adminId);
+        }
+
+        [HttpPost("Policy")]
+        public IActionResult Add(PolicyDto policyDto)
+        {
+            var policyId = _policyService.Add(policyDto);
+            return Ok(policyId);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(Guid id)
+        {
+            if (_adminService.Delete(id))
+                return Ok(id);
+            return NotFound("Admin Not Found");
         }
 
         [HttpPut]
         public IActionResult Update(AdminDto adminDto)
         {
-            var UpdatedAdminDTO = _adminService.Update(adminDto);
-            if (UpdatedAdminDTO != null)
-                return Ok(UpdatedAdminDTO);
-            return NotFound("Admin Not Found");
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(AdminDto adminDto)
-        {
-            if (_adminService.Delete(adminDto))
-                return Ok("Admin Deleted Successfully");
-            return NotFound("Admin Not Found");
+            if (_adminService.Update(adminDto))
+                return Ok(adminDto);
+            return NotFound("Admin not found");
         }
     }
 }

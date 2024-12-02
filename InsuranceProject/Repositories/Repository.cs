@@ -15,20 +15,26 @@ namespace InsuranceProject.Repositories
             _table = _context.Set<T>();
         }
 
-        public IQueryable<T> GetAll()
-        {
-            return _table.AsQueryable();
-        }
-
-        public T GetById(Guid id)
-        {
-            return _table.Find(id);
-        }
-
         public void Add(T entity)
         {
             _table.Add(entity);
             _context.SaveChanges();
+        }
+
+        public int Delete(T entity)
+        {
+            _table.Remove(entity);
+            return _context.SaveChanges();
+        }
+
+        public T Get(Guid id)
+        {
+            var entity = _table.Find(id);
+            return entity;
+        }
+        public IQueryable<T> GetAll()
+        {
+            return _table.AsQueryable();
         }
 
         public void Update(T entity)
@@ -36,12 +42,5 @@ namespace InsuranceProject.Repositories
             _table.Update(entity);
             _context.SaveChanges();
         }
-
-        public void Delete(T entity)
-        {
-            _table.Remove(entity);
-            _context.SaveChanges();
-        }
-
     }
 }

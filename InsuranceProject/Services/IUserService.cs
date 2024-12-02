@@ -1,13 +1,15 @@
 ﻿using InsuranceProject.DTOs;
+using InsuranceProject.Models;
 
 namespace InsuranceProject.Services
 {
     public interface IUserService
     {
-        public List<UserDto> GetAll();
-        public UserDto Get(Guid id);
-        public Guid Add(UserDto userDto);
-        public UserDto Update(UserDto userDto);
-        public bool Delete(UserDto userDto);
+        public List<UserDto> GetUsers();
+        public User GetById(Guid id);
+        public Guid AddUser(UserDto userDto);
+        public bool DeleteUser(Guid id);
+        public bool UpdateUser(UserDto userDto);
+        public User FindUserByName(string userName);
     }
 }

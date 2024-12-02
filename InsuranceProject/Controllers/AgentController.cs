@@ -19,39 +19,50 @@ namespace InsuranceProject.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var agentDTOs = _agentService.GetAll();
-            return Ok(agentDTOs);
+            var agents = _agentService.GetAll();
+            return Ok(agents);
         }
 
         [HttpGet("{id}")]
         public IActionResult Get(Guid id)
         {
-            var existingAgentDTO = _agentService.Get(id);
-            return Ok(existingAgentDTO);
+            var agent = _agentService.Get(id);
+            return Ok(agent);
         }
 
         [HttpPost]
-        public IActionResult Add(AgentDto agentDto)
+        public IActionResult Add(AgentRegisterDto agentRegisterDto)
         {
-            var newAgentId = _agentService.Add(agentDto);
-            return Ok(newAgentId);
+            var agentId = _agentService.Add(agentRegisterDto);
+            return Ok(agentId);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(Guid id)
+        {
+            if (_agentService.Delete(id))
+                return Ok(id);
+            return NotFound("Agent Not Found");
         }
 
         [HttpPut]
         public IActionResult Update(AgentDto agentDto)
         {
-            var UpdatedAgentDTO = _agentService.Update(agentDto);
-            if (UpdatedAgentDTO != null)
-                return Ok(UpdatedAgentDTO);
-            return NotFound("Agent Not Found");
+            if (_agentService.Update(agentDto))
+                return Ok(agentDto);
+            return NotFound("Agent not found");
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(AgentDto agentDto)
+        [HttpPut("changepassword")]
+        public IActionResult ChangePassword(ChangePasswordDto changePasswordDto)
         {
-            if (_agentService.Delete(agentDto))
-                return Ok("Agent Deleted Successfully");
-            return NotFound("Agent Not Found");
+            if (_agentService.ChangePassword(changePasswordDto))
+            {
+                return Ok(changePasswordDto);
+            }
+            return NotFound("Agent not found");
+
+
         }
     }
 }

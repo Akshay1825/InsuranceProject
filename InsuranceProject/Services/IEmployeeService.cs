@@ -1,13 +1,14 @@
 ﻿using InsuranceProject.DTOs;
+using InsuranceProject.Models;
 
 namespace InsuranceProject.Services
 {
     public interface IEmployeeService
     {
-        public List<EmployeeDto> GetAll();
-        public EmployeeDto Get(Guid id);
-        public Guid Add(EmployeeDto employeeDto);
-        public EmployeeDto Update(EmployeeDto employeeDto);
-        public bool Delete(EmployeeDto employeeDto);
+        public List<EmployeeDto> GetEmployees();
+        public Employee GetById(Guid id);
+        public Guid AddEmployee(EmployeeRegisterDto employeeRegisterDto);
+        public bool DeleteEmployee(Guid id);
+        public bool UpdateEmployee(EmployeeDto employeeDto);
     }
 }

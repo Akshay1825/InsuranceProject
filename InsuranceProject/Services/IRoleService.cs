@@ -1,13 +1,14 @@
 ﻿using InsuranceProject.DTOs;
+using InsuranceProject.Models;
 
 namespace InsuranceProject.Services
 {
     public interface IRoleService
     {
-        public List<RoleDto> GetAll();
-        public RoleDto Get(Guid id);
-        public Guid Add(RoleDto roleDto);
-        public RoleDto Update(RoleDto roleDto);
-        public bool Delete(RoleDto roleDto);
+        public List<RoleDto> GetRoles();
+        public Role GetById(Guid id);
+        public Guid AddRole(RoleDto roleDto);
+        public bool DeleteRole(Guid id);
+        public bool UpdateRole(RoleDto roleDto);
     }
 }

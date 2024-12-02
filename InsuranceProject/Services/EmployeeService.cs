@@ -10,58 +10,68 @@ namespace InsuranceProject.Services
     public class EmployeeService : IEmployeeService
     {
         private readonly IRepository<Employee> _repository;
+        private readonly IRepository<Role> _repositoryRole;
+        private readonly IRepository<User> _userRepository;
         private readonly IMapper _mapper;
-
-        public EmployeeService(IRepository<Employee> repository,IMapper mapper)
+        private Guid _roleId = new Guid("9d9c16e3-8eb7-4e8c-50bd-08dd115dd6c7");
+        public EmployeeService(IRepository<Employee> employeeRepository, IMapper mapper, IRepository<Role> repositoryRole, IRepository<User> userRepository)
         {
-            _repository = repository;
+            _repository = employeeRepository;
             _mapper = mapper;
+            _repositoryRole = repositoryRole;
+            _userRepository = userRepository;
         }
-
-        public List<EmployeeDto> GetAll()
+        public Guid AddEmployee(EmployeeRegisterDto employeeRegisterDto)
         {
-            var employees = _repository.GetAll().ToList();
-            List<EmployeeDto> result = _mapper.Map<List<EmployeeDto>>(employees);
-            return result;
-        }
-
-        public EmployeeDto Get(Guid id)
-        {
-            var employee = _repository.GetById(id);
-            if (employee == null)
+            var user = new User()
             {
-                throw new EmployeeNotFoundException("Employee Not Found");
-            }
-            var employeeDto = _mapper.Map<EmployeeDto>(employee);
-            return employeeDto;
-        }
+                UserName=employeeRegisterDto.Username,
+                PasswordHash=BCrypt.Net.BCrypt.HashPassword(employeeRegisterDto.Password),
+                Status = true,
+                RoleId = _roleId
+            };
+            _userRepository.Add(user);
 
-        public Guid Add(EmployeeDto employeeDto)
-        {
-            var employee = _mapper.Map<Employee>(employeeDto);
+            var role = _repositoryRole.Get(_roleId);
+            role.Users.Add(user);
+
+            employeeRegisterDto.UserId = user.Id;
+
+            var employee = _mapper.Map<Employee>(employeeRegisterDto);
             _repository.Add(employee);
-            return employee.EmployeeId;
+            return employee.Id;
         }
 
-        public EmployeeDto Update(EmployeeDto employeeDto)
+        public bool DeleteEmployee(Guid id)
         {
-            var existingEmployee = _mapper.Map<Employee>(employeeDto);
-            var updatedEmployee = _repository.GetAll().AsNoTracking().FirstOrDefault(x => x.EmployeeId == existingEmployee.EmployeeId);
-            if (updatedEmployee != null)
+            var employee = _repository.Get(id);
+            if (employee != null)
             {
-                _repository.Update(updatedEmployee);
+                _repository.Delete(employee);
+                return true;
             }
-            var updatedEmployeeDto = _mapper.Map<EmployeeDto>(updatedEmployee);
-            return updatedEmployeeDto;
+            return false;
         }
 
-        public bool Delete(EmployeeDto employeeDto)
+        public Employee GetById(Guid id)
         {
-            var employee = _mapper.Map<Employee>(employeeDto);
-            var existingEmployee = _repository.GetById(employee.EmployeeId);
+            return _repository.Get(id);
+        }
+
+        public List<EmployeeDto> GetEmployees()
+        {
+            var employee = _repository.GetAll().ToList();
+            List<EmployeeDto> employeeDtos = _mapper.Map<List<EmployeeDto>>(employee);
+            return employeeDtos;
+        }
+
+        public bool UpdateEmployee(EmployeeDto employeeDto)
+        {
+            var existingEmployee = _repository.GetAll().AsNoTracking().Where(u => u.Id == employeeDto.Id);
             if (existingEmployee != null)
             {
-                _repository.Delete(existingEmployee);
+                var employee = _mapper.Map<Employee>(employeeDto);
+                _repository.Update(employee);
                 return true;
             }
             return false;

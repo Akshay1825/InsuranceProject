@@ -13,6 +13,9 @@ namespace InsuranceProject.Data
         public DbSet<Policy> Policies { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<PolicyAccount> PolicyAccounts { get; set; }
+        public DbSet<State> States { get; set; }
+        public DbSet<City> Cities { get; set; }
 
         public Context(DbContextOptions<Context> options) : base(options) { }
        

@@ -1,4 +1,5 @@
 ﻿using InsuranceProject.DTOs;
+using InsuranceProject.Models;
 using InsuranceProject.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,47 +12,24 @@ namespace InsuranceProject.Controllers
     {
         private readonly IDocumentService _documentService;
 
-        public DocumentController(IDocumentService documentService)
+        public DocumentController(IDocumentService service)
         {
-            _documentService = documentService;
-        }
-
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            var documentDTOs = _documentService.GetAll();
-            return Ok(documentDTOs);
-        }
-
-        [HttpGet("{id}")]
-        public IActionResult Get(Guid id)
-        {
-            var existingDocumentDTO = _documentService.Get(id);
-            return Ok(existingDocumentDTO);
+            _documentService = service;
         }
 
         [HttpPost]
-        public IActionResult Add(DocumentDto documentDto)
+        public IActionResult Add(Document document)
         {
-            var newDocumentId = _documentService.Add(documentDto);
-            return Ok(newDocumentId);
+            var newId = _documentService.Add(document);
+            return Ok(newId);
         }
 
-        [HttpPut]
-        public IActionResult Update(DocumentDto documentDto)
+        [HttpDelete]
+        public IActionResult Delete(Guid id)
         {
-            var UpdatedDocumentDTO = _documentService.Update(documentDto);
-            if (UpdatedDocumentDTO != null)
-                return Ok(UpdatedDocumentDTO);
-            return NotFound("Document Not Found");
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(DocumentDto documentDto)
-        {
-            if (_documentService.Delete(documentDto))
-                return Ok("Document Deleted Successfully");
-            return NotFound("Document Not Found");
+            if (_documentService.Delete(id))
+                return Ok(id);
+            return BadRequest();
         }
     }
 }

@@ -56,6 +56,7 @@ namespace InsuranceProject
             builder.Services.AddTransient<IPolicyService, PolicyService>();
             builder.Services.AddTransient<IEmployeeService, EmployeeService>();
             builder.Services.AddTransient<IRoleService, RoleService>();
+            builder.Services.AddTransient<ILoginService, LoginService>();
             builder.Services.AddControllers();
             builder.Services.AddControllers().AddJsonOptions(x =>
             {

@@ -1,13 +1,15 @@
 ﻿using InsuranceProject.DTOs;
+using InsuranceProject.Models;
 
 namespace InsuranceProject.Services
 {
     public interface IAgentService
     {
-        public List<AgentDto> GetAll();
+        public Guid Add(AgentRegisterDto agentRegisterDto);
+        public bool Update(AgentDto agentDto);
+        public List<Agent> GetAll();
         public AgentDto Get(Guid id);
-        public Guid Add(AgentDto agentDto);
-        public AgentDto Update(AgentDto agentDto);
-        public bool Delete(AgentDto agentDto);
+        public bool Delete(Guid id);
+        public bool ChangePassword(ChangePasswordDto passwordDto);
     }
 }

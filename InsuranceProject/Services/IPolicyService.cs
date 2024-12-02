@@ -4,10 +4,10 @@ namespace InsuranceProject.Services
 {
     public interface IPolicyService
     {
-        public List<PolicyDto> GetAll();
+        public Guid Add(PolicyDto policy);
         public PolicyDto Get(Guid id);
-        public Guid Add(PolicyDto policyDto);
-        public PolicyDto Update(PolicyDto policyDto);
-        public bool Delete(PolicyDto policyDto);
+        public List<PolicyDto> GetAll();
+        public bool Update(PolicyDto policy);
+        public bool Delete(Guid id);
     }
 }

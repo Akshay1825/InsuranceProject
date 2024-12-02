@@ -10,7 +10,6 @@ namespace InsuranceProject.Controllers
     public class EmployeeController : ControllerBase
     {
         private readonly IEmployeeService _employeeService;
-
         public EmployeeController(IEmployeeService employeeService)
         {
             _employeeService = employeeService;
@@ -19,39 +18,41 @@ namespace InsuranceProject.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var employeeDTOs = _employeeService.GetAll();
-            return Ok(employeeDTOs);
+            var employeeDtos = _employeeService.GetEmployees();
+            return Ok(employeeDtos);
+        }
+
+        [HttpPost]
+        public IActionResult Add(EmployeeRegisterDto employeeRegisterDto)
+        {
+            var id = _employeeService.AddEmployee(employeeRegisterDto);
+            return Ok(id);
         }
 
         [HttpGet("{id}")]
         public IActionResult Get(Guid id)
         {
-            var existingEmployeeDTO = _employeeService.Get(id);
-            return Ok(existingEmployeeDTO);
+            var employee = _employeeService.GetById(id);
+            return Ok(employee);
         }
-
-        [HttpPost]
-        public IActionResult Add(EmployeeDto employeeDto)
-        {
-            var newEmployeeId = _employeeService.Add(employeeDto);
-            return Ok(newEmployeeId);
-        }
-
         [HttpPut]
         public IActionResult Update(EmployeeDto employeeDto)
         {
-            var UpdatedEmployeeDTO = _employeeService.Update(employeeDto);
-            if (UpdatedEmployeeDTO != null)
-                return Ok(UpdatedEmployeeDTO);
-            return NotFound("Employee Not Found");
+            if (_employeeService.UpdateEmployee(employeeDto))
+            {
+                return Ok(employeeDto);
+            }
+            return NotFound();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(EmployeeDto employeeDto)
+        public IActionResult Delete(Guid id)
         {
-            if (_employeeService.Delete(employeeDto))
-                return Ok("Employee Deleted Successfully");
-            return NotFound("Employee Not Found");
+            if (_employeeService.DeleteEmployee(id))
+            {
+                return Ok(id);
+            }
+            return NotFound();
         }
 
     }

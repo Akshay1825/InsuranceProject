@@ -1,13 +1,11 @@
 ﻿using InsuranceProject.DTOs;
+using InsuranceProject.Models;
 
 namespace InsuranceProject.Services
 {
     public interface IDocumentService
     {
-        public List<DocumentDto> GetAll();
-        public DocumentDto Get(Guid id);
-        public Guid Add(DocumentDto documentDto);
-        public DocumentDto Update(DocumentDto documentDto);
-        public bool Delete(DocumentDto documentDto);
+        public Guid Add(Document document);
+        public bool Delete(Guid id);
     }
 }

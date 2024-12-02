@@ -11,59 +11,53 @@ namespace InsuranceProject.Services
     {
         private readonly IRepository<Role> _repository;
         private readonly IMapper _mapper;
-
         public RoleService(IRepository<Role> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
         }
-        public Guid Add(RoleDto roleDto)
+        public Guid AddRole(RoleDto roleDto)
         {
             var role = _mapper.Map<Role>(roleDto);
             _repository.Add(role);
-            return role.RoleId;
+            return role.Id;
         }
 
-        public bool Delete(RoleDto roleDto)
+        public bool DeleteRole(Guid id)
         {
-            var role = _mapper.Map<Role>(roleDto);
-            var existingRole = _repository.GetById(role.RoleId);
-            if (existingRole != null)
+            var role = _repository.Get(id);
+            if (role != null)
             {
-                _repository.Delete(existingRole);
+                _repository.Delete(role);
                 return true;
             }
             return false;
+
         }
 
-        public RoleDto Get(Guid id)
+        public Role GetById(Guid id)
         {
-            var role = _repository.GetById(id);
-            if (role == null)
+            return _repository.Get(id);
+        }
+
+        public List<RoleDto> GetRoles()
+        {
+            var roles = _repository.GetAll().Include(p => p.Users).ToList();
+            List<RoleDto> roleDtos = _mapper.Map<List<RoleDto>>(roles);
+            return roleDtos;
+        }
+
+        public bool UpdateRole(RoleDto roleDto)
+        {
+            var existingRole = _repository.GetAll().AsNoTracking().Where(r => r.Id == roleDto.Id);
+            if (existingRole != null)
             {
-                throw new RoleNotFoundException("Role Not Found");
+                var role = _mapper.Map<Role>(roleDto);
+                _repository.Update(role);
+                return true;
             }
-            var roleDto = _mapper.Map<RoleDto>(role);
-            return roleDto;
-        }
+            return false;
 
-        public List<RoleDto> GetAll()
-        {
-            var roles = _repository.GetAll().ToList();
-            List<RoleDto> result = _mapper.Map<List<RoleDto>>(roles);
-            return result;
-        }
-
-        public RoleDto Update(RoleDto roleDto)
-        {
-            var existingRole = _mapper.Map<Role>(roleDto);
-            var updatedRole = _repository.GetAll().AsNoTracking().FirstOrDefault(x => x.RoleId == existingRole.RoleId);
-            if (updatedRole != null)
-            {
-                _repository.Update(updatedRole);
-            }
-            var updatedRoleDto = _mapper.Map<RoleDto>(updatedRole);
-            return updatedRoleDto;
         }
     }
 }
