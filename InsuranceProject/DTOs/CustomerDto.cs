@@ -19,15 +19,16 @@ namespace InsuranceProject.DTOs
         [Required]
         [RegularExpression(@"^\d{10}$", ErrorMessage = "Mobile number must be exactly 10 digits.")]
         public long MobileNumber { get; set; }
+
+        public DateOnly? BirthDate { get; set; }
         public string State { get; set; }
         public string City { get; set; }
         public string Nominee { get; set; }
         public string NomineeRelation { get; set; }
-
+        public string? UserName { get; set; }
         public Guid UserId { get; set; }
         public Guid? AgentId { get; set; }
         public int TotalDocuments { get; set; }
-        public PolicyAccount? PolicyAccount { get; set; }
         public int TotalPolicies { get; set; }
     }
 }

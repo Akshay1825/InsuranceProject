@@ -22,25 +22,13 @@ namespace InsuranceProject.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CustomerPolicy", b =>
-                {
-                    b.Property<Guid>("CustomersCustomerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PoliciesId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("CustomersCustomerId", "PoliciesId");
-
-                    b.HasIndex("PoliciesId");
-
-                    b.ToTable("CustomerPolicy");
-                });
-
             modelBuilder.Entity("InsuranceProject.Models.Admin", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FirstName")
@@ -48,13 +36,19 @@ namespace InsuranceProject.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -72,20 +66,26 @@ namespace InsuranceProject.Migrations
                     b.Property<Guid?>("AdminId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<double?>("CommisionEarned")
                         .HasColumnType("float");
+
+                    b.Property<int?>("CustomerCount")
+                        .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("EmployeeId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -99,6 +99,9 @@ namespace InsuranceProject.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool?>("Status")
+                        .HasColumnType("bit");
+
                     b.Property<double?>("TotalCommissionEarned")
                         .HasColumnType("float");
 
@@ -108,11 +111,12 @@ namespace InsuranceProject.Migrations
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AdminId");
-
-                    b.HasIndex("EmployeeId");
 
                     b.HasIndex("UserId");
 
@@ -139,20 +143,135 @@ namespace InsuranceProject.Migrations
                     b.ToTable("Cities");
                 });
 
+            modelBuilder.Entity("InsuranceProject.Models.Claimm", b =>
+                {
+                    b.Property<Guid>("ClaimId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double?>("ClaimAmount")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("ClaimDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("PolicyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("ClaimId");
+
+                    b.ToTable("claims");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.Commission", b =>
+                {
+                    b.Property<Guid>("CommissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AgentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Amount")
+                        .HasColumnType("float");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CommissionType")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("IssueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("PolicyNo")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CommissionId");
+
+                    b.HasIndex("AgentId");
+
+                    b.HasIndex("PolicyNo");
+
+                    b.ToTable("Commissions");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.Complaint", b =>
+                {
+                    b.Property<Guid>("ComplaintId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ComplaintMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ComplaintName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DateOfComplaint")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Response")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("ComplaintId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("Complaints");
+                });
+
             modelBuilder.Entity("InsuranceProject.Models.Customer", b =>
                 {
                     b.Property<Guid>("CustomerId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid?>("AdminId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Age")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("AgentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("BirthDate")
+                        .HasColumnType("date");
+
                     b.Property<string>("City")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -166,6 +285,9 @@ namespace InsuranceProject.Migrations
                         .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -182,11 +304,13 @@ namespace InsuranceProject.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("State")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CustomerId");
 
@@ -207,20 +331,35 @@ namespace InsuranceProject.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid>("BaseId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Location")
-                        .IsRequired()
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("DocType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FilePath")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("PolicyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool?>("Status")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("PolicyId");
 
                     b.ToTable("Documents");
                 });
@@ -234,6 +373,12 @@ namespace InsuranceProject.Migrations
                     b.Property<Guid?>("AdminId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DOJ")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -243,6 +388,9 @@ namespace InsuranceProject.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(15)
@@ -251,11 +399,14 @@ namespace InsuranceProject.Migrations
                     b.Property<long>("MobileNumber")
                         .HasColumnType("bigint");
 
-                    b.Property<double>("Salary")
+                    b.Property<double?>("Salary")
                         .HasColumnType("float");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -266,13 +417,78 @@ namespace InsuranceProject.Migrations
                     b.ToTable("Employees");
                 });
 
-            modelBuilder.Entity("InsuranceProject.Models.Policy", b =>
+            modelBuilder.Entity("InsuranceProject.Models.Installment", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("InstallmentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("AdminId")
+                    b.Property<double>("AmountDue")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("AmountPaid")
+                        .HasColumnType("float");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentReference")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("PolicyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("InstallmentId");
+
+                    b.HasIndex("PolicyId");
+
+                    b.ToTable("Installments");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.InsurancePlan", b =>
+                {
+                    b.Property<Guid>("PlanId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PlanName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool?>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("PlanId");
+
+                    b.ToTable("Plans");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.InsuranceScheme", b =>
+                {
+                    b.Property<Guid>("SchemeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
@@ -280,11 +496,11 @@ namespace InsuranceProject.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int>("DocumentType")
-                        .HasColumnType("int");
+                    b.Property<double>("InstallmentCommRatio")
+                        .HasColumnType("float");
 
-                    b.Property<int>("InstallmentCommisionRatio")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("MaxAge")
                         .HasColumnType("int");
@@ -292,7 +508,7 @@ namespace InsuranceProject.Migrations
                     b.Property<double>("MaxAmount")
                         .HasColumnType("float");
 
-                    b.Property<int>("MaxPolicyTerm")
+                    b.Property<int>("MaxInvestTime")
                         .HasColumnType("int");
 
                     b.Property<int>("MinAge")
@@ -301,56 +517,281 @@ namespace InsuranceProject.Migrations
                     b.Property<double>("MinAmount")
                         .HasColumnType("float");
 
-                    b.Property<int>("MinPolicyTerm")
+                    b.Property<int>("MinInvestTime")
                         .HasColumnType("int");
 
-                    b.Property<bool>("PolicyStatus")
-                        .HasColumnType("bit");
+                    b.Property<Guid?>("PlanId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("RegistrationCommisionAmount")
+                    b.Property<double>("ProfitRatio")
                         .HasColumnType("float");
 
-                    b.Property<string>("Title")
+                    b.Property<double>("RegistrationCommRatio")
+                        .HasColumnType("float");
+
+                    b.PrimitiveCollection<string>("RequiredDocuments")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SchemeName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("policyRatio")
-                        .HasColumnType("int");
+                    b.Property<bool?>("Status")
+                        .HasColumnType("bit");
 
-                    b.HasKey("Id");
+                    b.HasKey("SchemeId");
 
-                    b.HasIndex("AdminId");
+                    b.HasIndex("PlanId");
 
-                    b.ToTable("Policies");
+                    b.ToTable("InsuranceSchemes");
                 });
 
-            modelBuilder.Entity("InsuranceProject.Models.PolicyAccount", b =>
+            modelBuilder.Entity("InsuranceProject.Models.InsuranceSettings", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("AccountNumber")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("BankName")
+                    b.Property<double?>("ClaimDeductionPercentage")
+                        .HasColumnType("float");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<double?>("PenaltyDeductionPercentage")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InsuranceSettings");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.Nominee", b =>
+                {
+                    b.Property<Guid>("NomineeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NomineeName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<string>("NomineeRelation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("PolicyNumber")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("IFSC")
+                    b.HasKey("NomineeId");
+
+                    b.HasIndex("PolicyNumber");
+
+                    b.ToTable("Nominees");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.Payment", b =>
+                {
+                    b.Property<Guid>("PaymentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double?>("Amount")
+                        .HasColumnType("float");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CVVNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CardHolderName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CardNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("PolicyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("Tax")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("TotalPayment")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("indexId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PaymentId");
+
+                    b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.Policy", b =>
+                {
+                    b.Property<Guid>("PolicyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AdminId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AgentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CancellationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ClaimmClaimId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double?>("InstallmentAmount")
+                        .HasColumnType("float");
+
+                    b.Property<Guid?>("InsuranceSchemeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("InsuranceSettingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("InsuranceSettingsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("InvestmentAmount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("IssueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("MaturityDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Nominee")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NomineeRelation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("PaymentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("Payments")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PolicyNumber")
+                        .HasColumnType("int");
+
+                    b.Property<long>("PolicyTerm")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("PolicyTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("PremiumAmount")
+                        .HasColumnType("float");
+
+                    b.Property<int>("PremiumType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SchemeName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<double>("SumAssured")
+                        .HasColumnType("float");
+
+                    b.Property<Guid?>("TaxId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("TaxSettingsTaxId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double?>("TotalPaidAmount")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("TotalPremiumNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("PolicyId");
+
+                    b.HasIndex("AdminId");
+
+                    b.HasIndex("AgentId");
+
+                    b.HasIndex("ClaimmClaimId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("InsuranceSchemeId");
+
+                    b.HasIndex("InsuranceSettingsId");
+
+                    b.HasIndex("PaymentId");
+
+                    b.HasIndex("PolicyTypeId");
+
+                    b.HasIndex("TaxSettingsTaxId");
+
+                    b.ToTable("Policies");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.PolicyType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId")
-                        .IsUnique();
-
-                    b.ToTable("PolicyAccounts");
+                    b.ToTable("PolicyTypes");
                 });
 
             modelBuilder.Entity("InsuranceProject.Models.Role", b =>
@@ -358,6 +799,12 @@ namespace InsuranceProject.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("RoleName")
                         .HasColumnType("int");
@@ -367,11 +814,65 @@ namespace InsuranceProject.Migrations
                     b.ToTable("Roles");
                 });
 
+            modelBuilder.Entity("InsuranceProject.Models.SchemeDetails", b =>
+                {
+                    b.Property<Guid>("DetailId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("ClaimType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("InsuranceSchemeSchemeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MaxAge")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaxAmount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinAge")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinAmount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SchemeImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("DetailId");
+
+                    b.HasIndex("InsuranceSchemeSchemeId");
+
+                    b.ToTable("SchemeDetails");
+                });
+
             modelBuilder.Entity("InsuranceProject.Models.State", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -382,11 +883,40 @@ namespace InsuranceProject.Migrations
                     b.ToTable("States");
                 });
 
+            modelBuilder.Entity("InsuranceProject.Models.TaxSettings", b =>
+                {
+                    b.Property<Guid>("TaxId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<double>("TaxPercentage")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("TaxId");
+
+                    b.ToTable("Taxs");
+                });
+
             modelBuilder.Entity("InsuranceProject.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -411,26 +941,13 @@ namespace InsuranceProject.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CustomerPolicy", b =>
-                {
-                    b.HasOne("InsuranceProject.Models.Customer", null)
-                        .WithMany()
-                        .HasForeignKey("CustomersCustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("InsuranceProject.Models.Policy", null)
-                        .WithMany()
-                        .HasForeignKey("PoliciesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("InsuranceProject.Models.Admin", b =>
                 {
                     b.HasOne("InsuranceProject.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -440,10 +957,6 @@ namespace InsuranceProject.Migrations
                     b.HasOne("InsuranceProject.Models.Admin", null)
                         .WithMany("Agents")
                         .HasForeignKey("AdminId");
-
-                    b.HasOne("InsuranceProject.Models.Employee", null)
-                        .WithMany("Agents")
-                        .HasForeignKey("EmployeeId");
 
                     b.HasOne("InsuranceProject.Models.User", "User")
                         .WithMany()
@@ -457,6 +970,32 @@ namespace InsuranceProject.Migrations
                     b.HasOne("InsuranceProject.Models.State", null)
                         .WithMany("Cities")
                         .HasForeignKey("StateId");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.Commission", b =>
+                {
+                    b.HasOne("InsuranceProject.Models.Agent", "Agent")
+                        .WithMany()
+                        .HasForeignKey("AgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InsuranceProject.Models.Policy", "PolicyAccount")
+                        .WithMany()
+                        .HasForeignKey("PolicyNo");
+
+                    b.Navigation("Agent");
+
+                    b.Navigation("PolicyAccount");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.Complaint", b =>
+                {
+                    b.HasOne("InsuranceProject.Models.Customer", "Customer")
+                        .WithMany("Complaints")
+                        .HasForeignKey("CustomerId");
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("InsuranceProject.Models.Customer", b =>
@@ -486,13 +1025,13 @@ namespace InsuranceProject.Migrations
 
             modelBuilder.Entity("InsuranceProject.Models.Document", b =>
                 {
-                    b.HasOne("InsuranceProject.Models.Customer", "Customer")
+                    b.HasOne("InsuranceProject.Models.Customer", null)
                         .WithMany("Documents")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
-                    b.Navigation("Customer");
+                    b.HasOne("InsuranceProject.Models.Policy", null)
+                        .WithMany("Documents")
+                        .HasForeignKey("PolicyId");
                 });
 
             modelBuilder.Entity("InsuranceProject.Models.Employee", b =>
@@ -508,22 +1047,91 @@ namespace InsuranceProject.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("InsuranceProject.Models.Installment", b =>
+                {
+                    b.HasOne("InsuranceProject.Models.Policy", "InsurancePolicy")
+                        .WithMany("Installments")
+                        .HasForeignKey("PolicyId");
+
+                    b.Navigation("InsurancePolicy");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.InsuranceScheme", b =>
+                {
+                    b.HasOne("InsuranceProject.Models.InsurancePlan", "InsurancePlan")
+                        .WithMany("Schemes")
+                        .HasForeignKey("PlanId");
+
+                    b.Navigation("InsurancePlan");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.Nominee", b =>
+                {
+                    b.HasOne("InsuranceProject.Models.Policy", "Policy")
+                        .WithMany("Nominees")
+                        .HasForeignKey("PolicyNumber");
+
+                    b.Navigation("Policy");
+                });
+
             modelBuilder.Entity("InsuranceProject.Models.Policy", b =>
                 {
                     b.HasOne("InsuranceProject.Models.Admin", null)
                         .WithMany("Policies")
                         .HasForeignKey("AdminId");
-                });
 
-            modelBuilder.Entity("InsuranceProject.Models.PolicyAccount", b =>
-                {
+                    b.HasOne("InsuranceProject.Models.Agent", "Agent")
+                        .WithMany()
+                        .HasForeignKey("AgentId");
+
+                    b.HasOne("InsuranceProject.Models.Claimm", "Claimm")
+                        .WithMany("Policies")
+                        .HasForeignKey("ClaimmClaimId");
+
                     b.HasOne("InsuranceProject.Models.Customer", "Customer")
-                        .WithOne("PolicyAccount")
-                        .HasForeignKey("InsuranceProject.Models.PolicyAccount", "CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Policies")
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("InsuranceProject.Models.InsuranceScheme", "InsuranceScheme")
+                        .WithMany("Policies")
+                        .HasForeignKey("InsuranceSchemeId");
+
+                    b.HasOne("InsuranceProject.Models.InsuranceSettings", "InsuranceSettings")
+                        .WithMany()
+                        .HasForeignKey("InsuranceSettingsId");
+
+                    b.HasOne("InsuranceProject.Models.Payment", null)
+                        .WithMany("Policies")
+                        .HasForeignKey("PaymentId");
+
+                    b.HasOne("InsuranceProject.Models.PolicyType", null)
+                        .WithMany("Policies")
+                        .HasForeignKey("PolicyTypeId");
+
+                    b.HasOne("InsuranceProject.Models.TaxSettings", "TaxSettings")
+                        .WithMany()
+                        .HasForeignKey("TaxSettingsTaxId");
+
+                    b.Navigation("Agent");
+
+                    b.Navigation("Claimm");
 
                     b.Navigation("Customer");
+
+                    b.Navigation("InsuranceScheme");
+
+                    b.Navigation("InsuranceSettings");
+
+                    b.Navigation("TaxSettings");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.SchemeDetails", b =>
+                {
+                    b.HasOne("InsuranceProject.Models.InsuranceScheme", "InsuranceScheme")
+                        .WithMany()
+                        .HasForeignKey("InsuranceSchemeSchemeId");
+
+                    b.Navigation("InsuranceScheme");
                 });
 
             modelBuilder.Entity("InsuranceProject.Models.User", b =>
@@ -553,18 +1161,52 @@ namespace InsuranceProject.Migrations
                     b.Navigation("Customers");
                 });
 
+            modelBuilder.Entity("InsuranceProject.Models.Claimm", b =>
+                {
+                    b.Navigation("Policies");
+                });
+
             modelBuilder.Entity("InsuranceProject.Models.Customer", b =>
                 {
+                    b.Navigation("Complaints");
+
                     b.Navigation("Documents");
 
-                    b.Navigation("PolicyAccount");
+                    b.Navigation("Policies");
                 });
 
             modelBuilder.Entity("InsuranceProject.Models.Employee", b =>
                 {
-                    b.Navigation("Agents");
-
                     b.Navigation("Customers");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.InsurancePlan", b =>
+                {
+                    b.Navigation("Schemes");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.InsuranceScheme", b =>
+                {
+                    b.Navigation("Policies");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.Payment", b =>
+                {
+                    b.Navigation("Policies");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.Policy", b =>
+                {
+                    b.Navigation("Documents");
+
+                    b.Navigation("Installments");
+
+                    b.Navigation("Nominees");
+                });
+
+            modelBuilder.Entity("InsuranceProject.Models.PolicyType", b =>
+                {
+                    b.Navigation("Policies");
                 });
 
             modelBuilder.Entity("InsuranceProject.Models.Role", b =>

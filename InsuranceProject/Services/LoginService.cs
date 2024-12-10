@@ -46,7 +46,7 @@ namespace InsuranceProject.Services
             {
                 return null; 
             }
-            if (string.IsNullOrEmpty(existingUser.PasswordHash) ||
+            if (
                 !BCrypt.Net.BCrypt.Verify(loginDto.Password, existingUser.PasswordHash))
             {
                 return null;

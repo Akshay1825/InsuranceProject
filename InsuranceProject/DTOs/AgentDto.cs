@@ -20,8 +20,14 @@ namespace InsuranceProject.DTOs
         public string Email { get; set; }
         [Required]
         public long MobileNumber { get; set; }
+
+        public string? userName { get; set; }
+
+        public bool? Status { get; set; } = true;
         public double? CommisionEarned { get; set; }
         public Guid? UserId { get; set; }
+
+        public int? CustomerCount { get; set; }
         public int? TotalCustomers { get; set; }
         public double? TotalCommissionEarned { get; set; }
         public double? TotalWithdrawalAmount { get; set; }

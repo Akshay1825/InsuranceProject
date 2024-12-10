@@ -2,7 +2,7 @@
 
 namespace InsuranceProject.Models
 {
-    public class State
+    public class State:BaseEntity
     {
         [Key]
         public Guid Id { get; set; }

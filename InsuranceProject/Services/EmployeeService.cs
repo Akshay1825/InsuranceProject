@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using InsuranceProject.DTOs;
 using InsuranceProject.Exceptions;
+using InsuranceProject.Helper;
 using InsuranceProject.Models;
 using InsuranceProject.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,7 @@ namespace InsuranceProject.Services
         {
             var user = new User()
             {
-                UserName=employeeRegisterDto.Username,
+                UserName=employeeRegisterDto.UserName,
                 PasswordHash=BCrypt.Net.BCrypt.HashPassword(employeeRegisterDto.Password),
                 Status = true,
                 RoleId = _roleId
@@ -58,11 +59,28 @@ namespace InsuranceProject.Services
             return _repository.Get(id);
         }
 
-        public List<EmployeeDto> GetEmployees()
+        public PagedResult<EmployeeDto> GetAll(FilterParameter filterParameter)
         {
-            var employee = _repository.GetAll().ToList();
-            List<EmployeeDto> employeeDtos = _mapper.Map<List<EmployeeDto>>(employee);
-            return employeeDtos;
+            var query = _repository.GetAll().AsNoTracking();
+            int totalCount = query.Count();
+            var pagedCustomers = query
+            .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
+            .Take(filterParameter.PageSize)
+                .ToList();
+
+            var customerDtos = _mapper.Map<List<EmployeeDto>>(pagedCustomers);
+            var pagedResult = new PagedResult<EmployeeDto>
+            {
+                Items = customerDtos,
+                TotalCount = totalCount,
+                PageSize = filterParameter.PageSize,
+                CurrentPage = filterParameter.PageNumber,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)filterParameter.PageSize),
+                HasNext = filterParameter.PageNumber < (int)Math.Ceiling(totalCount / (double)filterParameter.PageSize),
+                HasPrevious = filterParameter.PageNumber > 1
+            };
+
+            return pagedResult;
         }
 
         public bool UpdateEmployee(EmployeeDto employeeDto)
@@ -73,6 +91,22 @@ namespace InsuranceProject.Services
                 var employee = _mapper.Map<Employee>(employeeDto);
                 _repository.Update(employee);
                 return true;
+            }
+            return false;
+        }
+
+        public bool ChangePassword(ChangePasswordDto passwordDto)
+        {
+            var customer = _repository.GetAll().AsNoTracking().Include(a => a.User).Where(a => a.User.UserName == passwordDto.UserName).FirstOrDefault();
+            if (customer != null)
+            {
+                if (BCrypt.Net.BCrypt.Verify(passwordDto.Password, customer.User.PasswordHash))
+                {
+                    customer.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwordDto.NewPassword);
+                    _repository.Update(customer);
+                    return true;
+                }
+
             }
             return false;
         }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace InsuranceProject.Models
 {
-    public class Admin
+    public class Admin:BaseEntity
     {
         [Key]
         public Guid Id { get; set; }
@@ -13,12 +13,12 @@ namespace InsuranceProject.Models
         [Required]
         [StringLength(15, ErrorMessage = "Last name should not greater than 15")]
         public string LastName { get; set; }
-
         public User User { get; set; }
 
         [ForeignKey("User")]
         public Guid UserId { get; set; }
 
+        public string? UserName { get; set; }
         public List<Employee>? Employees { get; set; }
         public List<Customer>? Customers { get; set; }
         public List<Agent>? Agents { get; set; }

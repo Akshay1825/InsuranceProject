@@ -1,19 +1,19 @@
 ﻿using InsuranceProject.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using InsuranceProject.Types;
 
 namespace InsuranceProject.DTOs
 {
     public class DocumentDto
     {
         [Key]
-        public Guid DocumentId { get; set; }
-        [Required]
-        public string Name { get; set; }
-        [Required]
-        public string Location { get; set; }
-        public Customer Customer { get; set; }
-        [ForeignKey("Customer")]
-        public Guid CustomerId { get; set; }
+        public Guid Id { get; set; }
+        public IFormFile? File { get; set; }
+        public string? Name { get; set; }
+        public string? FilePath { get; set; }
+        public DocumentType? DocType { get; set; }
+        public bool? Status { get; set; }=false;
+        public Guid? CustomerId { get; set; }
     }
 }

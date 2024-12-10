@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using InsuranceProject.DTOs;
 using InsuranceProject.Exceptions;
+using InsuranceProject.Helper;
 using InsuranceProject.Models;
 using InsuranceProject.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ namespace InsuranceProject.Services
         private readonly IRepository<Agent> _agentRepository;
         private readonly IRepository<Role> _roleRepository;
         private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Customer> _customerRepository;
         private readonly IMapper _mapper;
         private Guid _roleId = new Guid("a8f1b121-fd38-4733-50be-08dd115dd6c7");
 
@@ -26,7 +28,7 @@ namespace InsuranceProject.Services
         {
             var user = new User()
             {
-                UserName = agentRegisterDto.Username,
+                UserName = agentRegisterDto.UserName,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(agentRegisterDto.Password),
                 Status = true,
                 RoleId = _roleId
@@ -81,11 +83,34 @@ namespace InsuranceProject.Services
             throw new Exception("No such agent exist");
         }
 
-        public List<Agent> GetAll()
+        public PagedResult<AgentDto> GetAll(FilterParameter filterParameter)
         {
-            var agents = _agentRepository.GetAll().Include(a => a.User).ToList();
-            //var agentDtos = _mapper.Map<List<AgentDto>>(agents);
-            return agents;
+            var query = _agentRepository.GetAll().AsNoTracking();
+            int totalCount = query.Count();
+            var pagedCustomers = query
+            .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
+            .Take(filterParameter.PageSize)
+                .ToList();
+
+            var customerDtos = _mapper.Map<List<AgentDto>>(pagedCustomers);
+            var pagedResult = new PagedResult<AgentDto>
+            {
+                Items = customerDtos,
+                TotalCount = totalCount,
+                PageSize = filterParameter.PageSize,
+                CurrentPage = filterParameter.PageNumber,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)filterParameter.PageSize),
+                HasNext = filterParameter.PageNumber < (int)Math.Ceiling(totalCount / (double)filterParameter.PageSize),
+                HasPrevious = filterParameter.PageNumber > 1
+            };
+
+            return pagedResult;
+        }
+
+        public Agent GetByUserName(string userName)
+        {
+            var customer = _agentRepository.GetAll().AsNoTracking().FirstOrDefault(u => u.UserName == userName);
+            return customer;
         }
 
         public bool Update(AgentDto agentDto)
@@ -99,5 +124,22 @@ namespace InsuranceProject.Services
             }
             return false;
         }
+
+        //public PageList<Agent> GetAll(FilterParameter filter, Guid Id)
+        //{
+
+        //    var Schemes = GetAllCustomers(filter, Id);
+        //    if (Schemes.Any())
+        //    {
+        //        return PageList<InsuranceScheme>.ToPagedList(Schemes, filter.PageNumber, filter.PageSize);
+        //    }
+        //    throw new SchemeNotFoundException("No Scheme Data found");
+        //}
+
+        //public List<Agent> GetAllCustomers(Guid id)
+        //{
+        //    var schemes = _repository.GetAll().Where(x => x.PlanId == id).ToList();
+        //    return schemes;
+        //}
     }
 }

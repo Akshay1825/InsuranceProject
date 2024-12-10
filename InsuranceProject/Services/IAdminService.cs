@@ -1,4 +1,5 @@
 ﻿using InsuranceProject.DTOs;
+using InsuranceProject.Models;
 
 namespace InsuranceProject.Services
 {
@@ -9,5 +10,9 @@ namespace InsuranceProject.Services
         public List<AdminDto> GetAll();
         public AdminDto Get(Guid id);
         public bool Delete(Guid id);
+
+        public Admin GetByUserName(string userName);
+
+        public bool ChangePassword(ChangePasswordDto passwordDto);
     }
 }

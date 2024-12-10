@@ -10,6 +10,7 @@ namespace InsuranceProject.DTOs
         [Required]
         [StringLength(15, ErrorMessage = "Last name should not greater than 15")]
         public string LastName { get; set; }
+        public bool? Status { get; set; }
        
         [Required]
         [StringLength(20, MinimumLength = 5, ErrorMessage = "username must be in 5 to 20 characters")]

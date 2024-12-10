@@ -1,4 +1,6 @@
-﻿namespace InsuranceProject.Repositories
+﻿using System.Linq.Expressions;
+
+namespace InsuranceProject.Repositories
 {
     public interface IRepository<T>
     {
@@ -7,5 +9,6 @@
         public void Update(T entity);
         public T Get(Guid id);
         public int Delete(T entity);
+        bool Any(Expression<Func<T, bool>> predicate);
     }
 }

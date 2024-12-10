@@ -33,9 +33,9 @@ namespace InsuranceProject.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add(AdminRegisterDto adminregisterDto)
+        public IActionResult Add(AdminRegisterDto adminRegisterDto)
         {
-            var adminId = _adminService.Add(adminregisterDto);
+            var adminId = _adminService.Add(adminRegisterDto);
             return Ok(adminId);
         }
 
@@ -59,6 +59,23 @@ namespace InsuranceProject.Controllers
         {
             if (_adminService.Update(adminDto))
                 return Ok(adminDto);
+            return NotFound("Admin not found");
+        }
+
+        [HttpGet("getProfile")]
+        public IActionResult GetByUserName(string userName)
+        {
+            var admin = _adminService.GetByUserName(userName);
+            return Ok(admin);
+        }
+
+        [HttpPut("changepassword")]
+        public IActionResult ChangePassword(ChangePasswordDto changePasswordDto)
+        {
+            if (_adminService.ChangePassword(changePasswordDto))
+            {
+                return Ok(changePasswordDto);
+            }
             return NotFound("Admin not found");
         }
     }

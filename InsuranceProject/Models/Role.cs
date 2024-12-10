@@ -4,7 +4,7 @@ using System.Data;
 
 namespace InsuranceProject.Models
 {
-    public class Role
+    public class Role:BaseEntity
     {
         [Key]
         public Guid Id { get; set; }

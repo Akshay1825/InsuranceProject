@@ -19,6 +19,8 @@ namespace InsuranceProject.DTOs
         [Required]
         [EmailAddress]
         public string Email { get; set; }
+
+        public string? UserName { get; set; }
         public double Salary { get; set; }
         public Guid UserId { get; set; }
         public int TotalCustomers { get; set; }

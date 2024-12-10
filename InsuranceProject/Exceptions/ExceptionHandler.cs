@@ -9,7 +9,7 @@ namespace InsuranceProject.Exceptions
             CancellationToken cancellationToken)
         {
             var response = new ErrorResponse();
-            if (exception is AgentNotFoundException)
+            if (exception is CustomerNotFoundException)
             {
                 response.ErrorCode = StatusCodes.Status404NotFound;
                 response.ExceptionMessage = exception.Message;

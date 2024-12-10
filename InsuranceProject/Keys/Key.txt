@@ -1,0 +1,8 @@
+﻿namespace InsuranceProject.Keys
+{
+    public class Key
+    {
+      FE - 6LesKpIqAAAAAJ0gOOpx6efzYrZnNZdb69HyXZaO
+      BE - 6LesKpIqAAAAABz5czluOJCCXWgrPgmpJsNVxv-Y
+    }
+}

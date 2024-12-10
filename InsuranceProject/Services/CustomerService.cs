@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using InsuranceProject.Data;
 using InsuranceProject.DTOs;
 using InsuranceProject.Exceptions;
+using InsuranceProject.Helper;
 using InsuranceProject.Models;
 using InsuranceProject.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -13,15 +15,15 @@ namespace InsuranceProject.Services
         private readonly IRepository<Customer> _repository;
         private readonly IRepository<Role> _roleRepository;
         private readonly IRepository<User> _userRepository;
-        private readonly IRepository<PolicyAccount> _policyAccountRepository;
+        private readonly IRepository<Agent> _agentRepository;
         private readonly IMapper _mapper;
-        public CustomerService(IRepository<Customer> cutomerRepository, IMapper mapper, IRepository<Role> roleRepository, IRepository<User> userRepository, IRepository<PolicyAccount> policyAccountRepository)
+        public CustomerService(IRepository<Customer> cutomerRepository,IRepository<Agent> agentRepository,IMapper mapper, IRepository<Role> roleRepository, IRepository<User> userRepository)
         {
             _mapper = mapper;
             _repository = cutomerRepository;
             _roleRepository = roleRepository;
             _userRepository = userRepository;
-            _policyAccountRepository = policyAccountRepository;
+            _agentRepository = agentRepository;
         }
 
         public Guid AddCustomer(CustomerRegistrationDto customerRegistrationDto)
@@ -49,6 +51,13 @@ namespace InsuranceProject.Services
             // Map and save customer
             customerRegistrationDto.UserId = user.Id;
             var customer = _mapper.Map<Customer>(customerRegistrationDto);
+
+            if (customerRegistrationDto.AgentId != null)
+            {
+                var agent = _agentRepository.GetAll().FirstOrDefault(x => x.Id == customerRegistrationDto.AgentId);
+                agent.Customers.Add(customer);
+
+            }
             _repository.Add(customer);
 
             // Ensure CustomerId is valid before returning
@@ -59,15 +68,7 @@ namespace InsuranceProject.Services
 
             return customer.CustomerId;
         }
-        public Guid AddPolicyAccount(PolicyAccountDto policyAccountDto)
-        {
-            var policyAccont = _mapper.Map<PolicyAccount>(policyAccountDto);
-            _policyAccountRepository.Add(policyAccont);
-            var customer = _repository.Get(policyAccont.CustomerId);
-            customer.PolicyAccount = policyAccont;
-            _repository.Update(customer);
-            return policyAccont.Id;
-        }
+        
         public bool ChangePassword(ChangePasswordDto passwordDto)
         {
             var customer = _repository.GetAll().AsNoTracking().Include(a => a.User).Where(a => a.User.UserName == passwordDto.UserName).FirstOrDefault();
@@ -100,12 +101,30 @@ namespace InsuranceProject.Services
             return _repository.Get(id);
         }
 
-        public List<CustomerDto> GetCustomers()
+        public PagedResult<CustomerDto> GetCustomers(FilterParameter filterParameter)
         {
-            var customer = _repository.GetAll().AsNoTracking().Include(p => p.PolicyAccount).ToList();
-            List<CustomerDto> customerDtos = _mapper.Map<List<CustomerDto>>(customer);
-            return customerDtos;
+            var query = _repository.GetAll().AsNoTracking();
+            int totalCount = query.Count();
+            var pagedCustomers = query
+            .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
+            .Take(filterParameter.PageSize)
+                .ToList();
+
+            List<CustomerDto> customerDtos = _mapper.Map<List<CustomerDto>>(pagedCustomers);
+            var pagedResult = new PagedResult<CustomerDto>
+            {
+                Items = customerDtos,
+                TotalCount = totalCount,
+                PageSize = filterParameter.PageSize,
+                CurrentPage = filterParameter.PageNumber,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)filterParameter.PageSize),
+                HasNext = filterParameter.PageNumber < (int)Math.Ceiling(totalCount / (double)filterParameter.PageSize),
+                HasPrevious = filterParameter.PageNumber > 1
+            };
+
+            return pagedResult;
         }
+    
 
         public bool UpdateCustomer(CustomerDto customerDto)
         {
@@ -117,6 +136,49 @@ namespace InsuranceProject.Services
                 return true;
             }
             return false;
+        }
+
+        public Customer GetByUserName(string userName)
+        {
+            var customer = _repository.GetAll().AsNoTracking().FirstOrDefault(u => u.UserName == userName);
+            return customer;
+        }
+
+        public PageList<Complaint> GetCustomerComplaints(Guid userID, FilterParameter filterParameter)
+        {
+            var customer = _repository.GetAll().Include(u => u.Complaints).AsNoTracking().FirstOrDefault(x => x.CustomerId == userID);
+            //if (customer == null)
+            //{
+            //    throw new CustomerNotFoundException("Customer Not Found");
+            //    //return new PageList<Complaint>();
+            //}
+            //else if (filterParameter.Id != null)
+            //{
+            //    return PageListcustomer.Complaints.FindAll(q => q.Status == true && q.ComplaintId == filterParameter.Id).ToList();
+            //}
+            //else if (filterParameter.Name != null)
+            //{
+            //    return customer.Queries.FindAll(q => q.Status == true && q.ComplaintName.Contains(filterParameter.Name)).ToList();
+            //}
+            var queries = customer.Complaints.FindAll(q => q.Status == true).ToList();
+            return PageList<Complaint>.ToPagedList(queries, filterParameter.PageNumber, filterParameter.PageSize);
+        }
+
+        public PageList<Customer> GetAll(FilterParameter filter, Guid planId)
+        {
+
+            var Schemes = GetAllSchemes(planId);
+            if (Schemes.Any())
+            {
+                return PageList<Customer>.ToPagedList(Schemes, filter.PageNumber, filter.PageSize);
+            }
+            throw new SchemeNotFoundException("No Scheme Data found");
+        }
+
+        public List<Customer> GetAllSchemes(Guid id)
+        {
+            var customer = _repository.GetAll().Where(x => x.AgentId == id).ToList();
+            return customer;
         }
     }
 }

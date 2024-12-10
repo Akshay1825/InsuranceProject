@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace InsuranceProject.Models
 {
-    public class Employee
+    public class Employee:BaseEntity
     {
         [Key]
         public Guid Id { get; set; }
@@ -19,12 +19,16 @@ namespace InsuranceProject.Models
         [Required]
         [EmailAddress]
         public string Email { get; set; }
-        public double Salary { get; set; }
+        public DateTime? DOJ { get; set; }
+
+        [Range(0, double.MaxValue)]
+        public Double? Salary { get; set; }
         public User? User { get; set; }
         [ForeignKey("User")]
         public Guid? UserId { get; set; }
 
+        public string? UserName { get; set; }
+
         public List<Customer>? Customers { get; set; }
-        public List<Agent>? Agents { get; set; }
     }
 }

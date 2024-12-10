@@ -1,38 +1,73 @@
-﻿using InsuranceProject.Types;
+﻿using InsuranceProject.Models;
+using InsuranceProject.Types;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InsuranceProject.DTOs
 {
     public class PolicyDto
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid PolicyId { get; set; }
+
+        public int? PolicyNumber { get; set; }
+
+        public string? SchemeName { get; set; }
+
+        [ForeignKey("InsuranceScheme")]
+        public Guid? InsuranceSchemeId { get; set; }
+        //public InsuranceScheme InsuranceScheme { get; set; }
+
+        [ForeignKey("Customer")]
+        public Guid? CustomerId { get; set; }
+        //public Customer Customer { get; set; }
+
         [Required]
-        [StringLength(100, MinimumLength = 5, ErrorMessage = "Title must be within the 5 to 100 characters")]
-        public string Title { get; set; }
-        [Required]
-        [StringLength(500, MinimumLength = 5, ErrorMessage = "Description must be within the 5 to 100 characters")]
-        public string Description { get; set; }
-        [Required]
-        public double MinAmount { get; set; }
-        [Required]
-        public double MaxAmount { get; set; }
-        [Required]
-        public int MinAge { get; set; }
-        [Required]
-        public int MaxAge { get; set; }
-        [Required]
-        public int MinPolicyTerm { get; set; }
-        [Required]
-        public int MaxPolicyTerm { get; set; }
-        [Required]
-        public int policyRatio { get; set; }
-        [Required]
-        public bool PolicyStatus { get; set; }
-        [Required]
-        public double RegistrationCommisionAmount { get; set; }
-        [Required]
-        public int InstallmentCommisionRatio { get; set; }
-        public DocumentType DocumentType { get; set; }
+        public DateTime IssueDate { get; set; } = DateTime.Now;
+
+        [Required(ErrorMessage = "Maturity Date is required.")]
+        public DateTime? MaturityDate { get; set; }
+
+        [Required(ErrorMessage = "Premium Type is required.")]
+        public Mode? PremiumType { get; set; }
+
+        [Required(ErrorMessage = "Sum Assured is required.")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Sum Assured must be greater than 0.")]
+        public double SumAssured { get; set; }
+
+        [Required(ErrorMessage = "Policy Term is required.")]
+        public long PolicyTerm { get; set; }
+
+        [Required(ErrorMessage = "Premium Amount is required.")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Premium Amount must be greater than 0.")]
+        public double PremiumAmount { get; set; }
+
+        public int? InvestmentAmount{ get; set; }
+
+        public int? TotalPremiumNumber { get; set; }
+
+        public string? Nominee { get; set; }
+
+        public string? NomineeRelation { get; set; }
+
+        public double? InstallmentAmount { get; set; }
+        public double? TotalPaidAmount { get; set; }
+
+        public Status? Status { get; set; } = Types.Status.Pending;
+
+        [ForeignKey("Agent")]
+        public Guid? AgentId { get; set; }
+        
+        [ForeignKey("TaxSetting")]
+        public Guid? TaxId { get; set; }
+
+        public DateTime? CancellationDate { get; set; }
+
+        public int? Payments { get; set; } = 0;
+
+        [ForeignKey("InsuranceSetting")]
+        public Guid? InsuranceSettingId { get; set; }
+
+        public Guid? PaymentId { get; set; }
     }
 }

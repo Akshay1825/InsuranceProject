@@ -2,7 +2,7 @@
 {
     public enum DocumentType
     {
-        AdharCard,
+        AadharCard,
         PanCard,
         VoterId,
         Passport,

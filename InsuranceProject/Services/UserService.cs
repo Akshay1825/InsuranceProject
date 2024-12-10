@@ -19,9 +19,22 @@ namespace InsuranceProject.Services
 
         public Guid AddUser(UserDto userDto)
         {
-            var user = _mapper.Map<User>(userDto);
-            _repository.Add(user);
-            return user.Id;
+            if (CheckUsername(userDto.UserName))
+            {
+                var user = _mapper.Map<User>(userDto);
+                _repository.Add(user);
+                return user.Id;
+            }
+            throw new UserNameExistsException("UserName Already Exists");
+        }
+
+        public bool CheckUsername(string username)
+        {
+            if (_repository.Any(u => u.UserName == username))
+            {
+                throw new UserNameExistsException("UserName already exists");
+            }
+            return true;
         }
 
         public bool DeleteUser(Guid id)

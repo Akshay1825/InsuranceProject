@@ -88,5 +88,26 @@ namespace InsuranceProject.Services
             }
             return false;
         }
+
+        public Admin GetByUserName(string userName)
+        {
+            var admin = _repository.GetAll().AsNoTracking().FirstOrDefault(u => u.UserName == userName);
+            return admin;
+        }
+
+        public bool ChangePassword(ChangePasswordDto passwordDto)
+        {
+            var customer = _repository.GetAll().AsNoTracking().Include(a => a.User).Where(a => a.User.UserName == passwordDto.UserName).FirstOrDefault();
+            if (customer != null)
+            {
+                if (BCrypt.Net.BCrypt.Verify(passwordDto.Password, customer.User.PasswordHash))
+                {
+                    customer.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwordDto.NewPassword);
+                    _repository.Update(customer);
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

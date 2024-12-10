@@ -56,5 +56,9 @@ namespace InsuranceProject.Controllers
             }
             return NotFound();
         }
+
+        //[HttpPut("updatePassword")]
+        //public IActionResult UpdatePassword(User)
+
     }
 }
