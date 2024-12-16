@@ -49,7 +49,7 @@ namespace InsuranceProject.Models
         public double? InstallmentAmount { get; set; }
         public double? TotalPaidAmount { get; set; }
 
-        public Status? Status { get; set; } = Types.Status.Pending;
+        public int? Status { get; set; } = 0;
 
         [ForeignKey("Agent")]
         public Guid? AgentId { get; set; }

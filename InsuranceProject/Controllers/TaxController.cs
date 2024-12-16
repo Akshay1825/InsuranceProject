@@ -1,4 +1,5 @@
-﻿using InsuranceProject.Models;
+﻿using InsuranceProject.DTOs;
+using InsuranceProject.Models;
 using InsuranceProject.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +29,16 @@ namespace InsuranceProject.Controllers
         {
             var taxId = _taxService.Add(tax);
             return Ok(taxId);
+        }
+
+        [HttpPut]
+        public IActionResult Update(TaxSettings tax)
+        {
+            if (_taxService.Update(tax))
+            {
+                return Ok(tax);
+            }
+            return NotFound();
         }
     }
 }

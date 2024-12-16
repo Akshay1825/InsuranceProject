@@ -38,10 +38,14 @@ namespace InsuranceProject.Controllers
         }
 
         
-
         [HttpPost]
         public IActionResult Add(InsurancePlanDto insurancePlanDto)
         {
+            var existing = _service.GetByUserName(insurancePlanDto);
+            if (existing != null)
+            {
+                return NotFound();
+            }
             var id = _service.Add(insurancePlanDto);
             return Ok(id);
         }

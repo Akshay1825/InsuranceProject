@@ -4,6 +4,7 @@ using InsuranceProject.Helper;
 using InsuranceProject.Models;
 using InsuranceProject.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
 namespace InsuranceProject.Services
@@ -47,33 +48,48 @@ namespace InsuranceProject.Services
             throw new Exception("No such claim exist");
         }
 
-        public PagedResult<ClaimDto> GetAll(FilterParameter filterParameter)
+        public PagedResult<ClaimDto> GetAll(DateFilter dateFilter)
         {
-            var query = _repository.GetAll().AsNoTracking();
+            var query = _repository.GetAll().AsNoTracking().ToList();
+
+            // Apply Date Filtering based on FromDate and ToDate
+            if (dateFilter.FromDate.HasValue && dateFilter.ToDate.HasValue)
+            {
+                query = query.Where(c => c.ClaimDate >= dateFilter.FromDate.Value &&
+                                          c.ClaimDate <= dateFilter.ToDate.Value).ToList();
+            }
+
+            // Get the total count after applying the date filters
             int totalCount = query.Count();
-            var pagedCustomers = query
-            .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
-            .Take(filterParameter.PageSize)
+
+            // Apply Pagination
+            var pagedClaims = query
+                .Skip((dateFilter.PageNumber - 1) * dateFilter.PageSize)
+                .Take(dateFilter.PageSize)
                 .ToList();
 
-            var customerDtos = _mapper.Map<List<ClaimDto>>(pagedCustomers);
+            // Map to DTOs
+            var claimDtos = _mapper.Map<List<ClaimDto>>(pagedClaims);
+
+            // Prepare the paged result
             var pagedResult = new PagedResult<ClaimDto>
             {
-                Items = customerDtos,
+                Items = claimDtos,
                 TotalCount = totalCount,
-                PageSize = filterParameter.PageSize,
-                CurrentPage = filterParameter.PageNumber,
-                TotalPages = (int)Math.Ceiling(totalCount / (double)filterParameter.PageSize),
-                HasNext = filterParameter.PageNumber < (int)Math.Ceiling(totalCount / (double)filterParameter.PageSize),
-                HasPrevious = filterParameter.PageNumber > 1
+                PageSize = dateFilter.PageSize,
+                CurrentPage = dateFilter.PageNumber,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)dateFilter.PageSize),
+                HasNext = dateFilter.PageNumber < (int)Math.Ceiling(totalCount / (double)dateFilter.PageSize),
+                HasPrevious = dateFilter.PageNumber > 1
             };
 
             return pagedResult;
         }
 
+
         public bool Update(ClaimDto claimDto)
         {
-            var existingPolicy = _repository.Get(claimDto.ClaimId);
+            var existingPolicy = _repository.GetAll().AsNoTracking().FirstOrDefault(x=>x.ClaimId==claimDto.ClaimId);
             if (existingPolicy != null)
             {
                 var policy = _mapper.Map<Claimm>(claimDto);

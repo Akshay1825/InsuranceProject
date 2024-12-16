@@ -12,10 +12,15 @@ namespace InsuranceProject.Models
         //public PaymentType? PaymentType { get; set; }
 
         public string? Status { get; set; } = "UnPaid";
-        public double? Amount { get; set; }
+        public double Amount { get; set; }
 
+        public Guid? InsuranceSchemeId { get; set; }
+
+        public int? PolicyNumber { get; set; }
+
+        public Guid? AgentId { get; set; }
         public int? indexId { get; set; }
-        public DateTime? PaymentDate { get; set; }
+        public DateTime PaymentDate { get; set; }
 
         //[ForeignKey("Premium")]
         //public Guid? PremiumId { get; set; }

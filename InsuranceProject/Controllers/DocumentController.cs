@@ -21,6 +21,16 @@ namespace InsuranceProject.Controllers
 
         }
 
+        [HttpPut]
+        public IActionResult Update([FromBody] Document document)
+        {
+            if (_documentService.UpdateCustomer(document))
+            {
+                return Ok(document);
+            }
+            return NotFound();
+        }
+
         [HttpPost]
         public IActionResult Add(Document document)
         {
@@ -58,6 +68,13 @@ namespace InsuranceProject.Controllers
             var response = await client.PostAsync("https://api.cloudinary.com/v1_1/dxq7e2s2v/image/upload", form);
             var content = await response.Content.ReadAsStringAsync();
             return Content(content, "application/json");
+        }
+
+        [HttpGet("document-types")]
+        public IActionResult GetDocumentTypes()
+        {
+            var documentTypes = Enum.GetNames(typeof(DocumentType));
+            return Ok(documentTypes);
         }
 
 

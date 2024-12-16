@@ -21,6 +21,10 @@ namespace InsuranceProject.Controllers
         {
             var existingUser = _loginService.FindByUserName(loginDto.UserName);
             var token = _loginService.GetUser(loginDto);
+            if (token == null) 
+            {
+                return NotFound();
+            }
             Response.Headers.Add("Jwt", token);
             return Ok(new { roleName = existingUser.Role.RoleName });
         }

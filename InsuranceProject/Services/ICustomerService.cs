@@ -18,6 +18,10 @@ namespace InsuranceProject.Services
 
         public PageList<Customer> GetAll(FilterParameter filter, Guid planId);
 
-        public List<Customer> GetAllSchemes(Guid id);
+        public List<Customer> GetAllSchemes(Guid id,FilterParameter filterParameter);
+
+        public List<Customer> GetAllCustomers(Guid id);
+
+        public List<Customer> GetAlll();
     }
 }

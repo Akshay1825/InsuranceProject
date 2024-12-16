@@ -13,7 +13,9 @@ namespace InsuranceProject.DTOs
         public string? Name { get; set; }
         public string? FilePath { get; set; }
         public DocumentType? DocType { get; set; }
-        public bool? Status { get; set; }=false;
+        public int? Status { get; set; } = 0;
+
+        public string? Note { get; set; }
         public Guid? CustomerId { get; set; }
     }
 }

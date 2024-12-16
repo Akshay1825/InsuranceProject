@@ -13,5 +13,7 @@ namespace InsuranceProject.Services
         public bool UpdateEmployee(EmployeeDto employeeDto);
 
         public bool ChangePassword(ChangePasswordDto passwordDto);
+
+        public Employee GetByUserName(string userName);
     }
 }

@@ -1,7 +1,9 @@
 ﻿using InsuranceProject.DTOs;
+using InsuranceProject.Helper;
 using InsuranceProject.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace InsuranceProject.Controllers
 {
@@ -60,6 +62,26 @@ namespace InsuranceProject.Controllers
         {
             var payment = _service.GetID(index,policyId);
             return Ok(payment);
+        }
+
+        [HttpGet("getAll")]
+        public IActionResult GetAll([FromQuery] DateFilter dateFilter)
+        {
+            var pagedCustomers = _service.GetAll(dateFilter);
+
+            var metadata = new
+            {
+                pagedCustomers.TotalCount,
+                pagedCustomers.PageSize,
+                pagedCustomers.CurrentPage,
+                pagedCustomers.TotalPages,
+                pagedCustomers.HasNext,
+                pagedCustomers.HasPrevious,
+            };
+
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+
+            return Ok(pagedCustomers);
         }
     }
 }

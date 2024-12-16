@@ -52,6 +52,35 @@ namespace InsuranceProject.Controllers
             return NotFound();
         }
 
+        [HttpPut("Update")]
+        public IActionResult UpdateScheme(InsuranceSchemeDto insuranceSchemeDto)
+        {
+            if (_insuranceSchemeService.Update2(insuranceSchemeDto))
+            {
+                return Ok(insuranceSchemeDto);
+            }
+            return NotFound();
+        }
+
+        [HttpGet("check-scheme-name")]
+        public IActionResult CheckSchemeNameDuplicate(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return BadRequest(new { message = "Scheme name is required" });
+            }
+
+            try
+            {
+                var exists = _insuranceSchemeService.CheckSchemeNameDuplicate(name);
+                return Ok(new {exists });
+            }
+            catch
+            {
+                return StatusCode(500, new { message = "An error occurred while checking the scheme name" });
+            }
+        }
+
         [HttpDelete("{id}")]
         public IActionResult Delete(Guid id)
         {
@@ -85,7 +114,7 @@ namespace InsuranceProject.Controllers
         [HttpGet("getById")]
         public IActionResult GetAll([FromQuery] Guid id)
         {
-            var schemes = _insuranceSchemeService.GetAllSchemes(id);
+            var schemes = _insuranceSchemeService.GetAllSchemes2(id);
             return Ok(schemes);
         }
     }

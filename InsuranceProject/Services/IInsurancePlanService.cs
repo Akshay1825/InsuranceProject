@@ -1,5 +1,6 @@
 ﻿using InsuranceProject.DTOs;
 using InsuranceProject.Helper;
+using InsuranceProject.Models;
 
 namespace InsuranceProject.Services
 {
@@ -10,5 +11,7 @@ namespace InsuranceProject.Services
         public PagedResult<InsurancePlanDto> GetAll(FilterParameter filterParameter);
         public bool Update(InsurancePlanDto insurancePlanDto);
         public bool Delete(Guid id);
+
+        public InsurancePlan GetByUserName(InsurancePlanDto insurancePlanDto);
     }
 }

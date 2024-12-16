@@ -2,8 +2,8 @@
 {
     public enum Status
     {
-        Active,
         Pending,
-        InActive
+        Approve,
+        Reject
     }
 }

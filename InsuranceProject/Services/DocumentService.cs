@@ -22,10 +22,36 @@ namespace InsuranceProject.Services
             _customerRepository = customerRepository;
             _cloudinaryService = cloudinaryService;
         }
+
+        public bool UpdateCustomer(Document document)
+        {
+            var existingCustomer = _repository.GetAll().AsNoTracking().FirstOrDefault(u => u.Id == document.Id);
+            if (existingCustomer != null)
+            {
+                _repository.Update(document);
+                return true;
+            }
+            return false;
+        }
         public Guid Add(Document document)
         {
-            _repository.Add(document);
-            return document.Id;
+            var existingDocument = _repository.GetAll()
+         .FirstOrDefault(d => d.CustomerId == document.CustomerId && d.Name == document.Name);
+
+            if (existingDocument != null)
+            {
+                existingDocument.CustomerId = document.CustomerId;
+                existingDocument.Name = document.Name;
+                existingDocument.Status = 0;
+                existingDocument.FilePath = document.FilePath;
+                _repository.Update(existingDocument);
+                return existingDocument.Id; 
+            }
+            else
+            {
+                _repository.Add(document);
+                return document.Id;
+            }
         }
 
         public bool Delete(Guid id)

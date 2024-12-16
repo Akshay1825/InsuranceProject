@@ -1,4 +1,5 @@
 ﻿using InsuranceProject.DTOs;
+using InsuranceProject.Helper;
 using InsuranceProject.Models;
 
 namespace InsuranceProject.Services
@@ -12,5 +13,7 @@ namespace InsuranceProject.Services
         public bool Delete(Guid id);
 
         public Payment GetID(int index, Guid policyId);
+
+        public PageList<Payment> GetAll(DateFilter dateFilter);
     }
 }

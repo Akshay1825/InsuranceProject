@@ -7,7 +7,7 @@ namespace InsuranceProject.DTOs
     {
         public Guid SchemeId { get; set; }
         public string SchemeName { get; set; }
-        public string SchemeImage { get; set; }
+        public string? SchemeImage { get; set; }
         public string Description { get; set; }
         public double MinAmount { get; set; }
         public double MaxAmount { get; set; }
@@ -18,11 +18,13 @@ namespace InsuranceProject.DTOs
         public double ProfitRatio { get; set; }
         public double RegistrationCommRatio { get; set; }
         public double InstallmentCommRatio { get; set; }
-        public bool Status { get; set; }
+        public bool Status { get; set; } = true;
         public string? PlanName { get; set; }
         public Guid PlanId { get; set; }
         public int? PoliciesCount { get; set; }
 
-        public List<DocumentType>? RequiredDocuments { get; set; }
+        public List<string>? Requireddocuments { get; set; }
+
+        public bool? IsActive { get; set; } = true;
     }
 }

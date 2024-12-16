@@ -149,6 +149,12 @@ namespace InsuranceProject.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("BankAccountNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BankIFSCCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("BaseId")
                         .HasColumnType("uniqueidentifier");
 
@@ -187,23 +193,29 @@ namespace InsuranceProject.Migrations
                     b.Property<Guid>("BaseId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("CommissionType")
-                        .HasColumnType("int");
+                    b.Property<string>("CommissionType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("IssueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("PolicyNo")
+                    b.Property<Guid?>("PolicyId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("policyNumber")
+                        .HasColumnType("int");
 
                     b.HasKey("CommissionId");
 
                     b.HasIndex("AgentId");
 
-                    b.HasIndex("PolicyNo");
+                    b.HasIndex("PolicyId");
 
                     b.ToTable("Commissions");
                 });
@@ -349,11 +361,14 @@ namespace InsuranceProject.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid?>("PolicyId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool?>("Status")
-                        .HasColumnType("bit");
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -499,6 +514,9 @@ namespace InsuranceProject.Migrations
                     b.Property<double>("InstallmentCommRatio")
                         .HasColumnType("float");
 
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -530,7 +548,6 @@ namespace InsuranceProject.Migrations
                         .HasColumnType("float");
 
                     b.PrimitiveCollection<string>("RequiredDocuments")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SchemeName")
@@ -610,7 +627,10 @@ namespace InsuranceProject.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double?>("Amount")
+                    b.Property<Guid?>("AgentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Amount")
                         .HasColumnType("float");
 
                     b.Property<Guid>("BaseId")
@@ -628,14 +648,20 @@ namespace InsuranceProject.Migrations
                     b.Property<DateTime?>("ExpiryDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("InsuranceSchemeId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("PaymentDate")
+                    b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("PolicyId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("PolicyNumber")
+                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
@@ -982,7 +1008,7 @@ namespace InsuranceProject.Migrations
 
                     b.HasOne("InsuranceProject.Models.Policy", "PolicyAccount")
                         .WithMany()
-                        .HasForeignKey("PolicyNo");
+                        .HasForeignKey("PolicyId");
 
                     b.Navigation("Agent");
 

@@ -10,9 +10,15 @@ namespace InsuranceProject.Services
         public InsuranceSchemeDto Get(Guid id);
         public List<InsuranceSchemeDto> GetAll();
         public bool Update(InsuranceSchemeDto insuranceSchemeDto);
+
+        public bool Update2(InsuranceSchemeDto insuranceSchemeDto);
         public bool Delete(Guid id);
-        public PageList<InsuranceScheme> GetAll(FilterParameter filter, Guid planId);
+        public PageList<InsuranceSchemeDto> GetAll(FilterParameter filter, Guid planId);
 
         public List<InsuranceScheme> GetAllSchemes(Guid id);
+
+        public List<InsuranceSchemeDto> GetAllSchemes2(Guid id);
+
+        public bool CheckSchemeNameDuplicate(string schemeName);
     }
 }

@@ -62,13 +62,26 @@ namespace InsuranceProject.Services
         public PagedResult<EmployeeDto> GetAll(FilterParameter filterParameter)
         {
             var query = _repository.GetAll().AsNoTracking();
+
+            // Apply filtering based on the filter parameter (e.g., Name)
+            if (!string.IsNullOrEmpty(filterParameter.Name))
+            {
+                query = query.Where(c => c.FirstName.Contains(filterParameter.Name));
+            }
+
+            // Calculate total count for pagination metadata
             int totalCount = query.Count();
-            var pagedCustomers = query
-            .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
-            .Take(filterParameter.PageSize)
+
+            // Apply pagination
+            var pagedData = query
+                .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
+                .Take(filterParameter.PageSize)
                 .ToList();
 
-            var customerDtos = _mapper.Map<List<EmployeeDto>>(pagedCustomers);
+            // Map to DTOs using AutoMapper
+            var customerDtos = _mapper.Map<List<EmployeeDto>>(pagedData);
+
+            // Create the paged result
             var pagedResult = new PagedResult<EmployeeDto>
             {
                 Items = customerDtos,
@@ -80,8 +93,10 @@ namespace InsuranceProject.Services
                 HasPrevious = filterParameter.PageNumber > 1
             };
 
+            // Return the paginated result
             return pagedResult;
         }
+
 
         public bool UpdateEmployee(EmployeeDto employeeDto)
         {
@@ -109,6 +124,12 @@ namespace InsuranceProject.Services
 
             }
             return false;
+        }
+
+        public Employee GetByUserName(string userName)
+        {
+            var customer = _repository.GetAll().AsNoTracking().FirstOrDefault(u => u.UserName == userName);
+            return customer;
         }
     }
 }

@@ -42,7 +42,7 @@ namespace InsuranceProject.DTOs
         [Range(0.01, double.MaxValue, ErrorMessage = "Premium Amount must be greater than 0.")]
         public double PremiumAmount { get; set; }
 
-        public int? InvestmentAmount{ get; set; }
+        public int InvestmentAmount{ get; set; }
 
         public int? TotalPremiumNumber { get; set; }
 
@@ -53,7 +53,7 @@ namespace InsuranceProject.DTOs
         public double? InstallmentAmount { get; set; }
         public double? TotalPaidAmount { get; set; }
 
-        public Status? Status { get; set; } = Types.Status.Pending;
+        public int? Status { get; set; } = 0;
 
         [ForeignKey("Agent")]
         public Guid? AgentId { get; set; }

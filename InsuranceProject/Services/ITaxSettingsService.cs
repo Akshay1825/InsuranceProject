@@ -8,5 +8,8 @@ namespace InsuranceProject.Services
         public List<TaxSettings> Get();
 
         public Guid Add(TaxSettings taxSettings);
+
+
+        public bool Update(TaxSettings tax);
     }
 }

@@ -7,7 +7,7 @@ namespace InsuranceProject.Services
     {
         public Guid Add(ComplaintDto complaintDto);
         public ComplaintDto Get(Guid id);
-        public PagedResult<ComplaintDto> GetAll(FilterParameter filterParameter);
+        public PagedResult<ComplaintDto> GetAll(DateFilter dateFilter);
         public bool Update(ComplaintDto complaintDto);
         public bool Delete(Guid id);
     }

@@ -59,8 +59,10 @@ namespace InsuranceProject.Mappers
             CreateMap<InsurancePlanDto, InsurancePlan>();
 
             CreateMap<InsuranceScheme, InsuranceSchemeDto>()
-                .ForMember(dest => dest.PoliciesCount, val => val.MapFrom(src => src.Policies.Count));
+                .ForMember(dest => dest.Requireddocuments, opt =>
+                opt.MapFrom(src => src.RequiredDocuments.Select(d => d.ToString()).ToList()));
             CreateMap<InsuranceSchemeDto, InsuranceScheme>();
+                
 
             CreateMap<SchemeDetails, SchemeDetailsDto>();
             CreateMap<SchemeDetailsDto, SchemeDetails>();

@@ -12,7 +12,9 @@ namespace InsuranceProject.Models
         public string? FilePath { get; set; }
         public DocumentType? DocType { get; set; }
 
-        public bool? Status { get; set; }
+        public int? Status { get; set; } = 0;
+
+        public string? Note { get; set; }
 
         //public Customer Customer { get; set; }
         //[ForeignKey("Customer")]

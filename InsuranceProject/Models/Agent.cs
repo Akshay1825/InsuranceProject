@@ -22,7 +22,7 @@ namespace InsuranceProject.Models
 
         public string? UserName { get; set; }
 
-        public bool? Status { get; set; } = true;
+        public bool? Status { get; set; } = false;
         public double? CommisionEarned { get; set; }
         public User? User { get; set; }
         [ForeignKey("User")]

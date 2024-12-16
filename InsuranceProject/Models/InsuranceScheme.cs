@@ -53,13 +53,14 @@ namespace InsuranceProject.Models
         [Range(0.0, 100.0, ErrorMessage = "Installment commission ratio must be between 0 and 100%.")]
         public double InstallmentCommRatio { get; set; }
 
-        public bool? Status { get; set; }
+        public bool? Status { get; set; } = true;
         [ForeignKey("InsurancePlan")]
         public Guid? PlanId { get; set; }
         public InsurancePlan? InsurancePlan { get; set; }
 
         public List<Policy>? Policies { get; set; }
-        [Required]
         public List<DocumentType>? RequiredDocuments { get; set; } = new List<DocumentType>();
+
+        public bool? IsActive { get; set; } = true;
     }
 }

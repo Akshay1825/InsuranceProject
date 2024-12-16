@@ -11,5 +11,7 @@ namespace InsuranceProject.Services
         public PageList<Document> GetByCustomerId(PageParameter pageParameter, Guid customerID);
 
         public string GetFileUrlById(Guid documentId);
+
+        public bool UpdateCustomer(Document document);
     }
 }

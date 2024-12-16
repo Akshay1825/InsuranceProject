@@ -18,7 +18,7 @@ namespace InsuranceProject.Controllers
         }
 
         [HttpGet("get")]
-        public IActionResult GetAll([FromQuery] FilterParameter filterParameter)
+        public IActionResult GetAll([FromQuery] DateFilter filterParameter)
         {
             var pagedCustomers = _service.GetAll(filterParameter);
 

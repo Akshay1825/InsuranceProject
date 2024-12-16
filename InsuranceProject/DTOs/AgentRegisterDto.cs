@@ -17,7 +17,7 @@ namespace InsuranceProject.DTOs
         [Required]
         public long MobileNumber { get; set; }
 
-        public bool? Status { get; set; } = true;
+        public bool? Status { get; set; } = false;
         public Guid? UserId { get; set; }
         
         [Required]

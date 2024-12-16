@@ -93,5 +93,12 @@ namespace InsuranceProject.Controllers
             return NotFound("Agent not found");
         }
 
+        [HttpGet("getProfile")]
+        public IActionResult GetByUserName([FromQuery] string userName)
+        {
+            var customer = _employeeService.GetByUserName(userName);
+            return Ok(new { customer });
+        }
+
     }
 }

@@ -47,19 +47,33 @@ namespace InsuranceProject.Services
             throw new Exception("No such complaint exist");
         }
 
-        public PagedResult<ComplaintDto> GetAll(FilterParameter filterParameter)
+        public PagedResult<ComplaintDto> GetAll(DateFilter filterParameter)
         {
-            var query = _repository.GetAll().AsNoTracking();
+            var query = _repository.GetAll().AsNoTracking().ToList();
+
+            // Apply Date Filtering if provided
+            if (filterParameter.FromDate.HasValue && filterParameter.ToDate.HasValue)
+            {
+                query = query.Where(c => c.DateOfComplaint >= filterParameter.FromDate.Value &&
+                                          c.DateOfComplaint <= filterParameter.ToDate.Value).ToList();
+            }
+
+            // Get the total count after applying the filters
             int totalCount = query.Count();
-            var pagedCustomers = query
-            .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
-            .Take(filterParameter.PageSize)
+
+            // Apply Pagination
+            var pagedComplaints = query
+                .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
+                .Take(filterParameter.PageSize)
                 .ToList();
 
-            var customerDtos = _mapper.Map<List<ComplaintDto>>(pagedCustomers);
+            // Map to DTOs
+            var complaintDtos = _mapper.Map<List<ComplaintDto>>(pagedComplaints);
+
+            // Prepare the paged result
             var pagedResult = new PagedResult<ComplaintDto>
             {
-                Items = customerDtos,
+                Items = complaintDtos,
                 TotalCount = totalCount,
                 PageSize = filterParameter.PageSize,
                 CurrentPage = filterParameter.PageNumber,
@@ -71,9 +85,10 @@ namespace InsuranceProject.Services
             return pagedResult;
         }
 
+
         public bool Update(ComplaintDto complaintDto)
         {
-            var existingPolicy = _repository.Get(complaintDto.ComplaintId);
+            var existingPolicy = _repository.GetAll().AsNoTracking().FirstOrDefault(x=>x.ComplaintId== complaintDto.ComplaintId);
             if (existingPolicy != null)
             {
                 var policy = _mapper.Map<Complaint>(complaintDto);

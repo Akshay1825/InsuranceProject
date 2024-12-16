@@ -68,6 +68,7 @@ namespace InsuranceProject
             builder.Services.AddTransient<ISchemeDetailsService, SchemeDetailsService>();
             builder.Services.AddTransient<ICloudinaryService, CloudinaryService>();
             builder.Services.AddTransient<ITaxSettingsService, TaxSettingsService>();
+            builder.Services.AddTransient<ICommissionService, CommissionService>();
 
             builder.Services.AddControllers();
             builder.Services.AddControllers().AddJsonOptions(x =>

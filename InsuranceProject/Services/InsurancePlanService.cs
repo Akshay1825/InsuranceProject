@@ -21,6 +21,7 @@ namespace InsuranceProject.Services
         public Guid Add(InsurancePlanDto insurancePlanDto)
         {
             var insurancePlan = _mapper.Map<InsurancePlan>(insurancePlanDto);
+            insurancePlan.Status = true;
             _repository.Add(insurancePlan);
             return insurancePlan.PlanId;
         }
@@ -30,7 +31,9 @@ namespace InsuranceProject.Services
             var policy = _repository.Get(id);
             if (policy != null)
             {
+               
                 _repository.Delete(policy);
+                
                 return true;
             }
             return false;
@@ -50,16 +53,29 @@ namespace InsuranceProject.Services
         public PagedResult<InsurancePlanDto> GetAll(FilterParameter filterParameter)
         {
             var query = _repository.GetAll().AsNoTracking();
+
+            // Apply filtering based on the filter parameter (e.g., Name)
+            if (!string.IsNullOrEmpty(filterParameter.Name))
+            {
+                query = query.Where(p => p.PlanName.Contains(filterParameter.Name));
+            }
+
+            // Calculate total count for pagination metadata
             int totalCount = query.Count();
-            var pagedCustomers = query
-            .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
-            .Take(filterParameter.PageSize)
+
+            // Apply pagination
+            var pagedPlans = query
+                .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
+                .Take(filterParameter.PageSize)
                 .ToList();
 
-            var customerDtos = _mapper.Map<List<InsurancePlanDto>>(pagedCustomers);
+            // Map to DTOs using AutoMapper
+            var planDtos = _mapper.Map<List<InsurancePlanDto>>(pagedPlans);
+
+            // Create the paged result
             var pagedResult = new PagedResult<InsurancePlanDto>
             {
-                Items = customerDtos,
+                Items = planDtos,
                 TotalCount = totalCount,
                 PageSize = filterParameter.PageSize,
                 CurrentPage = filterParameter.PageNumber,
@@ -68,6 +84,7 @@ namespace InsuranceProject.Services
                 HasPrevious = filterParameter.PageNumber > 1
             };
 
+            // Return the paginated result
             return pagedResult;
         }
 
@@ -81,6 +98,12 @@ namespace InsuranceProject.Services
                 return true;
             }
             return false;
+        }
+
+        public InsurancePlan GetByUserName(InsurancePlanDto insurancePlanDto)
+        {
+            var plan = _repository.GetAll().AsNoTracking().FirstOrDefault(x => x.PlanName == insurancePlanDto.PlanName);
+            return plan;
         }
     }
 }

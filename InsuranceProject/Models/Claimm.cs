@@ -12,11 +12,9 @@ namespace InsuranceProject.Models
         public double? ClaimAmount { get; set; }
         [Required(ErrorMessage = "This field is required")]
         public DateTime? ClaimDate { get; set; }
-        //[Required(ErrorMessage = "This field is required")]
-        //public string? BankAccountNo { get; set; }
-        //[Required(ErrorMessage = "This field is required")]
-        //public string? BankIFSCCode { get; set; }
-        public ClaimStatus? Status { get; set; } = Types.ClaimStatus.Pending;
+        public string? BankAccountNo { get; set; }
+        public string? BankIFSCCode { get; set; }
+        public int? Status { get; set; } = 0;
 
         public Guid? PolicyId { get; set; }
 

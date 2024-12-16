@@ -55,7 +55,7 @@ namespace InsuranceProject.Services
             if (customerRegistrationDto.AgentId != null)
             {
                 var agent = _agentRepository.GetAll().FirstOrDefault(x => x.Id == customerRegistrationDto.AgentId);
-                agent.Customers.Add(customer);
+                agent.CustomerCount++;
 
             }
             _repository.Add(customer);
@@ -90,6 +90,11 @@ namespace InsuranceProject.Services
             var customer = _repository.Get(id);
             if (customer != null)
             {
+                if (customer.AgentId!=null)
+                {
+                    var agent = _agentRepository.GetAll().FirstOrDefault(x => x.Id == customer.AgentId);
+                    agent.CustomerCount--;
+                }
                 _repository.Delete(customer);
                 return true;
             }
@@ -103,17 +108,29 @@ namespace InsuranceProject.Services
 
         public PagedResult<CustomerDto> GetCustomers(FilterParameter filterParameter)
         {
-            var query = _repository.GetAll().AsNoTracking();
-            int totalCount = query.Count();
-            var pagedCustomers = query
-            .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
-            .Take(filterParameter.PageSize)
+            var query = _repository.GetAll();
+
+            // Apply the name filter
+            if (!string.IsNullOrEmpty(filterParameter.Name))
+            {
+                query = query.Where(c => c.FirstName.Contains(filterParameter.Name));
+            }
+
+            // Calculate total count for pagination metadata
+            var totalCount = query.Count();
+
+            // Apply pagination
+            var customers1 = query
+                .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
+                .Take(filterParameter.PageSize)
                 .ToList();
 
-            List<CustomerDto> customerDtos = _mapper.Map<List<CustomerDto>>(pagedCustomers);
-            var pagedResult = new PagedResult<CustomerDto>
+            var customers = _mapper.Map<List<CustomerDto>>(customers1);
+
+            // Return paginated result
+            return new PagedResult<CustomerDto>
             {
-                Items = customerDtos,
+                Items = customers,
                 TotalCount = totalCount,
                 PageSize = filterParameter.PageSize,
                 CurrentPage = filterParameter.PageNumber,
@@ -121,8 +138,6 @@ namespace InsuranceProject.Services
                 HasNext = filterParameter.PageNumber < (int)Math.Ceiling(totalCount / (double)filterParameter.PageSize),
                 HasPrevious = filterParameter.PageNumber > 1
             };
-
-            return pagedResult;
         }
     
 
@@ -167,7 +182,9 @@ namespace InsuranceProject.Services
         public PageList<Customer> GetAll(FilterParameter filter, Guid planId)
         {
 
-            var Schemes = GetAllSchemes(planId);
+            var Schemes = GetAllSchemes(planId,filter);
+
+            
             if (Schemes.Any())
             {
                 return PageList<Customer>.ToPagedList(Schemes, filter.PageNumber, filter.PageSize);
@@ -175,10 +192,27 @@ namespace InsuranceProject.Services
             throw new SchemeNotFoundException("No Scheme Data found");
         }
 
-        public List<Customer> GetAllSchemes(Guid id)
+        public List<Customer> GetAllSchemes(Guid id,FilterParameter filterParameter)
         {
             var customer = _repository.GetAll().Where(x => x.AgentId == id).ToList();
+
+            if (!string.IsNullOrWhiteSpace(filterParameter.Name))
+            {
+                customer = customer.Where(x => x.FirstName.Contains(filterParameter.Name, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
             return customer;
+        }
+
+        public List<Customer> GetAllCustomers(Guid id)
+        {
+            var customers = _repository.GetAll().Where(x=>x.AgentId == id).ToList();
+            return customers;
+        }
+
+        public List<Customer> GetAlll()
+        {
+            var customers = _repository.GetAll();
+            return customers.ToList();
         }
     }
 }

@@ -86,16 +86,29 @@ namespace InsuranceProject.Services
         public PagedResult<AgentDto> GetAll(FilterParameter filterParameter)
         {
             var query = _agentRepository.GetAll().AsNoTracking();
+
+            // Apply filtering based on the filter parameter (e.g., Name)
+            if (!string.IsNullOrEmpty(filterParameter.Name))
+            {
+                query = query.Where(agent => agent.FirstName.Contains(filterParameter.Name));
+            }
+
+            // Calculate total count for pagination metadata
             int totalCount = query.Count();
-            var pagedCustomers = query
-            .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
-            .Take(filterParameter.PageSize)
+
+            // Apply pagination
+            var pagedData = query
+                .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
+                .Take(filterParameter.PageSize)
                 .ToList();
 
-            var customerDtos = _mapper.Map<List<AgentDto>>(pagedCustomers);
+            // Map to DTOs using AutoMapper
+            var agentDtos = _mapper.Map<List<AgentDto>>(pagedData);
+
+            // Create the paged result
             var pagedResult = new PagedResult<AgentDto>
             {
-                Items = customerDtos,
+                Items = agentDtos,
                 TotalCount = totalCount,
                 PageSize = filterParameter.PageSize,
                 CurrentPage = filterParameter.PageNumber,
@@ -124,22 +137,5 @@ namespace InsuranceProject.Services
             }
             return false;
         }
-
-        //public PageList<Agent> GetAll(FilterParameter filter, Guid Id)
-        //{
-
-        //    var Schemes = GetAllCustomers(filter, Id);
-        //    if (Schemes.Any())
-        //    {
-        //        return PageList<InsuranceScheme>.ToPagedList(Schemes, filter.PageNumber, filter.PageSize);
-        //    }
-        //    throw new SchemeNotFoundException("No Scheme Data found");
-        //}
-
-        //public List<Agent> GetAllCustomers(Guid id)
-        //{
-        //    var schemes = _repository.GetAll().Where(x => x.PlanId == id).ToList();
-        //    return schemes;
-        //}
     }
 }

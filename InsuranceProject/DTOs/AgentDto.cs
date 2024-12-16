@@ -23,7 +23,7 @@ namespace InsuranceProject.DTOs
 
         public string? userName { get; set; }
 
-        public bool? Status { get; set; } = true;
+        public bool? Status { get; set; } = false;
         public double? CommisionEarned { get; set; }
         public Guid? UserId { get; set; }
 

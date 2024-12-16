@@ -12,18 +12,46 @@ namespace InsuranceProject.Services
     {
         private readonly IRepository<Policy> _policyRepository;
         private readonly IMapper _mapper;
+        private readonly IRepository<InsuranceScheme> _schemeRepository;
+        private readonly IRepository<Customer> _customerRepository;
+        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Commission> _commissionRepository;
 
-        public PolicyService(IRepository<Policy> repository, IMapper mapper)
+        public PolicyService(IRepository<Policy> repository,IRepository<Commission> commissionRepository,IRepository<User> userRepository, IMapper mapper,IRepository<Customer> customerRepository,IRepository<InsuranceScheme> insuranceScheme)
         {
             _policyRepository = repository;
             _mapper = mapper;
+            _schemeRepository = insuranceScheme;
+            _customerRepository = customerRepository;
+            _userRepository = userRepository;
+            _commissionRepository = commissionRepository;
         }
         public Guid Add(PolicyDto policydto)
         {
             int policyNumber = GenerateUniquePolicyNumber();
-            policydto.PolicyNumber = policyNumber;     //Uniquly created Policy number
+            policydto.PolicyNumber = policyNumber;
+
+            var insuranceScheme = _schemeRepository.GetAll().AsNoTracking().FirstOrDefault(x=>x.SchemeId==policydto.InsuranceSchemeId);
+            var commissionPercent = insuranceScheme.RegistrationCommRatio;
+            
             var policy = _mapper.Map<Policy>(policydto);
+            policy.Status = 0;
             _policyRepository.Add(policy);
+            if (policydto.AgentId != null)
+            {
+                var commission = new Commission()
+                {
+                    CommissionId = new Guid(),
+                    AgentId = policydto.AgentId,
+                    Date = policydto.IssueDate,
+                    CommissionType = "Registration",
+                    policyNumber = policydto.PolicyNumber,
+                    PolicyId = policy.PolicyId,
+                    Amount = (policydto.InvestmentAmount * (commissionPercent / 100)),
+                    Status = 1
+                };
+                _commissionRepository.Add(commission);
+            }
             return policy.PolicyId;
         }
 
@@ -38,6 +66,12 @@ namespace InsuranceProject.Services
 
             } while (exists);
             return policyNumber;
+        }
+
+        public Customer GetUser(PolicyDto policyDto)
+        {
+            var customer = _customerRepository.GetAll().AsNoTracking().FirstOrDefault(x=>x.CustomerId==policyDto.CustomerId);
+            return customer;
         }
 
         public bool Delete(Guid id)
@@ -82,16 +116,44 @@ namespace InsuranceProject.Services
             return false;
         }
 
-        public PagedResult<PolicyDto> GetPoliciesWithCustomerId(PolicyFilter filterParameter, Guid userID)
+        public bool UpdatePolicy(PolicyDto policydto)
         {
-            var query = _policyRepository.GetAll().AsNoTracking().Where(x=>x.CustomerId==userID).ToList();
+            var existingPolicy = _policyRepository.GetAll().AsNoTracking().FirstOrDefault(x => x.PolicyId == policydto.PolicyId); ;
+            if (existingPolicy != null)
+            {
+                var policy = _mapper.Map<Policy>(policydto);
+                _policyRepository.Update(policy);
+                return true;
+            }
+            return false;
+        }
+
+        public PagedResult<PolicyDto> GetPoliciesWithCustomerId(FilterParameter filterParameter, Guid userID)
+        {
+            // Fetch all policies for the specific customer ID
+            var query = _policyRepository.GetAll()
+                                         .AsNoTracking()
+                                         .Where(x => x.CustomerId == userID);
+
+            // Apply filtering based on the filter parameter (e.g., Name)
+            if (!string.IsNullOrEmpty(filterParameter.Name))
+            {
+                query = query.Where(x => x.SchemeName.Contains(filterParameter.Name));
+            }
+
+            // Calculate total count for pagination metadata
             int totalCount = query.Count();
-            var pagedCustomers = query
-            .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
-            .Take(filterParameter.PageSize)
+
+            // Apply pagination
+            var pagedPolicies = query
+                .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
+                .Take(filterParameter.PageSize)
                 .ToList();
 
-            var policyDtos = _mapper.Map<List<PolicyDto>>(pagedCustomers);
+            // Map to DTOs using AutoMapper
+            var policyDtos = _mapper.Map<List<PolicyDto>>(pagedPolicies);
+
+            // Create the paginated result
             var pagedResult = new PagedResult<PolicyDto>
             {
                 Items = policyDtos,
@@ -103,8 +165,11 @@ namespace InsuranceProject.Services
                 HasPrevious = filterParameter.PageNumber > 1
             };
 
+            // Return the paginated result
             return pagedResult;
         }
+
+
 
         public PagedResult<PolicyDto> GetAll(FilterParameter filterParameter)
         {
@@ -127,6 +192,44 @@ namespace InsuranceProject.Services
                 HasPrevious = filterParameter.PageNumber > 1
             };
 
+            return pagedResult;
+        }
+
+        public PagedResult<PolicyDto> GetAlll(FilterParameter filterParameter,Guid Id)
+        {
+            var query = _policyRepository.GetAll().AsNoTracking().Where(x=>x.AgentId==Id);
+
+            // Apply filtering based on the filter parameter (e.g., Name)
+            if (!string.IsNullOrEmpty(filterParameter.Name))
+            {
+                query = query.Where(c => c.SchemeName.Contains(filterParameter.Name));
+            }
+
+            // Calculate total count for pagination metadata
+            int totalCount = query.Count();
+
+            // Apply pagination
+            var pagedData = query
+                .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
+                .Take(filterParameter.PageSize)
+                .ToList();
+
+            // Map to DTOs using AutoMapper
+            var customerDtos = _mapper.Map<List<PolicyDto>>(pagedData);
+
+            // Create the paged result
+            var pagedResult = new PagedResult<PolicyDto>
+            {
+                Items = customerDtos,
+                TotalCount = totalCount,
+                PageSize = filterParameter.PageSize,
+                CurrentPage = filterParameter.PageNumber,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)filterParameter.PageSize),
+                HasNext = filterParameter.PageNumber < (int)Math.Ceiling(totalCount / (double)filterParameter.PageSize),
+                HasPrevious = filterParameter.PageNumber > 1
+            };
+
+            // Return the paginated result
             return pagedResult;
         }
     }

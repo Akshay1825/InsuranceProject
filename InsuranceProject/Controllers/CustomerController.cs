@@ -84,6 +84,40 @@ namespace InsuranceProject.Controllers
             return NotFound();
         }
 
+        [HttpGet("check-existence")]
+        public IActionResult CheckExistence([FromQuery] string userName, [FromQuery] string email, [FromQuery] long mobileNumber)
+        {
+            var usernameExists = _customerService.GetAlll().Any(c => c.UserName == userName);
+            var emailExists = _customerService.GetAlll().Any(c => c.Email == email);
+            var mobileExists = _customerService.GetAlll().Any(c => c.MobileNumber == mobileNumber);
+
+            if (usernameExists)
+            {
+                return BadRequest(new { field = "userName", message = "Username already exists" });
+            }
+
+            if (emailExists)
+            {
+                return BadRequest(new { field = "email", message = "Email already exists" });
+            }
+
+            if (mobileExists)
+            {
+                return BadRequest(new { field = "mobileNumber", message = "Mobile number already exists" });
+            }
+
+            return Ok(new { message = "All fields are valid" });
+        }
+
+        [HttpGet("check-username")]
+        public IActionResult CheckUsername([FromQuery] string userName)
+        {
+            var usernameExists = _customerService.GetAlll().Any(c => c.UserName == userName);
+            return Ok(new { UsernameExists = usernameExists });
+        }
+
+
+
         [HttpDelete("{id}")]
         public IActionResult Delete(Guid id)
         {
@@ -154,6 +188,14 @@ namespace InsuranceProject.Controllers
                 return Ok(complaints);
             }
             return BadRequest("Bad request");
+        }
+
+        [HttpGet("GetByAgentId")]
+
+        public IActionResult GetAll(Guid id)
+        {
+            var customers = _customerService.GetAllCustomers(id);
+            return Ok(customers);
         }
     }
 }
