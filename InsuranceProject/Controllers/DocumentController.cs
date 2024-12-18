@@ -2,6 +2,7 @@
 using InsuranceProject.Models;
 using InsuranceProject.Services;
 using InsuranceProject.Types;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +22,7 @@ namespace InsuranceProject.Controllers
 
         }
 
-        [HttpPut]
+        [HttpPut, Authorize(Roles = "ADMIN,EMPLOYEE,CUSTOMER")]
         public IActionResult Update([FromBody] Document document)
         {
             if (_documentService.UpdateCustomer(document))
@@ -31,14 +32,14 @@ namespace InsuranceProject.Controllers
             return NotFound();
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "ADMIN,EMPLOYEE,CUSTOMER")]
         public IActionResult Add(Document document)
         {
             var newId = _documentService.Add(document);
             return Ok(newId);
         }
 
-        [HttpDelete]
+        [HttpDelete, Authorize(Roles = "ADMIN,EMPLOYEE,CUSTOMER")]
         public IActionResult Delete(Guid id)
         {
             if (_documentService.Delete(id))
@@ -46,7 +47,7 @@ namespace InsuranceProject.Controllers
             return BadRequest();
         }
 
-        [HttpGet("DocTypes")]
+        [HttpGet("DocTypes"), Authorize(Roles = "ADMIN,EMPLOYEE,CUSTOMER")]
         public IActionResult GetDocTypes()
         {
             var docTypes = Enum.GetValues(typeof(DocumentType))
@@ -57,7 +58,7 @@ namespace InsuranceProject.Controllers
             return Ok(docTypes);
         }
 
-        [HttpPost("upload")]
+        [HttpPost("upload"), Authorize(Roles = "ADMIN,EMPLOYEE,CUSTOMER")]
         public async Task<IActionResult> UploadImage([FromForm] IFormFile file)
         {
             var client = new HttpClient();
@@ -70,33 +71,12 @@ namespace InsuranceProject.Controllers
             return Content(content, "application/json");
         }
 
-        [HttpGet("document-types")]
+        [HttpGet("document-types"), Authorize(Roles = "ADMIN,EMPLOYEE,CUSTOMER")]
         public IActionResult GetDocumentTypes()
         {
             var documentTypes = Enum.GetNames(typeof(DocumentType));
             return Ok(documentTypes);
         }
-
-
-        //[HttpGet("Cloudinary")]
-        //public IActionResult DownloadFile([FromQuery] Guid documentId)
-        //{
-        //    try
-        //    {
-        //        var fileUrl = _documentService.GetFileUrlById(documentId);
-
-        //        if (string.IsNullOrEmpty(fileUrl))
-        //        {
-        //            return NotFound("File not found.");
-        //        }
-
-        //        return Ok(new { FileUrl = fileUrl }); // Return the file URL to be used on the client side
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"Internal server error: {ex.Message}");
-        //    }
-        //}
     }
 }
 

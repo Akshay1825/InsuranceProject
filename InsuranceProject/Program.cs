@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -79,6 +80,13 @@ namespace InsuranceProject
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             //builder.Services.AddSingleton<CloudinaryService>();
+
+            Log.Logger = new LoggerConfiguration()
+              .MinimumLevel.Information()
+              .WriteTo.File("Logs/app-log-.txt", rollingInterval: RollingInterval.Day,
+              rollOnFileSizeLimit: true,           
+              shared: true) // Logs to a file
+              .CreateLogger();
             builder.Services.AddExceptionHandler<ExceptionHandler>();
             //builder.Services.AddSession();
             var app = builder.Build();
@@ -89,13 +97,14 @@ namespace InsuranceProject
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            app.UseExceptionHandler(_ => { });
             //app.UseSession();
             app.UseHttpsRedirection();
-            
-            app.UseAuthentication();
             app.UseCors("AllowAngularApp");
+            app.UseAuthentication();
+            
             app.UseAuthorization();
-            app.UseExceptionHandler(_ => { });
+            
             
             app.MapControllers();
             app.Run();

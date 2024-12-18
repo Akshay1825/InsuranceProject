@@ -52,6 +52,41 @@ namespace InsuranceProject.Services
                 };
                 _commissionRepository.Add(commission);
             }
+
+
+            var scheme = _schemeRepository.GetAll().FirstOrDefault(x => x.SchemeId == policydto.InsuranceSchemeId);
+            var customer = _customerRepository.Get(policydto.CustomerId);
+
+            if (customer != null)
+            {
+                var subject = "New-Insurance";
+                var body = $@"
+          <p>Dear {customer.FirstName},</p>
+          <p>Your Policy Has Been Sucessfully Generated.</p>
+          <p>Your Documents Have been sent for Verification</p>
+          <p>Kindly wait for approval your kyc-status will be updated soon</p>
+          <p>Looking forward to working with you. :) </p>
+          <p>Best regards,<br/>New-Insurance Team</p> ";
+
+                var emailService = new EmailService();
+                emailService.SendEmail(customer.Email, subject, body);
+            }
+            if (policydto.AgentId != null)
+            {
+                var user = _userRepository.Get(customer.UserId);
+
+                var subject = "New-Insurance";
+                var body = $@"
+          <p>Dear {customer.FirstName},</p>
+          <p>Your Policy Has Been Sucessfully Generated.</p>
+          <p>Kindly Login with the credentials provided before and upload the documents as below:</p>
+          <p>Kindly Upload Documents As per mention in the scheme</p>
+          <p>Looking forward to working with you. :) </p>
+          <p>Best regards,<br/>New-Insurance Team</p> ";
+
+                var emailService = new EmailService();
+                emailService.SendEmail(customer.Email, subject, body);
+            }
             return policy.PolicyId;
         }
 

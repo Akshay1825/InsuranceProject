@@ -8,7 +8,7 @@ namespace InsuranceProject.Services
     {
         public Guid Add(AgentRegisterDto agentRegisterDto);
         public bool Update(AgentDto agentDto);
-        public PagedResult<AgentDto> GetAll(FilterParameter filterParameter);
+        public (PagedResult<AgentDto> Result, object Metadata) GetAll(FilterParameter filterParameter);
         public AgentDto Get(Guid id);
         public bool Delete(Guid id);
         public bool ChangePassword(ChangePasswordDto passwordDto);

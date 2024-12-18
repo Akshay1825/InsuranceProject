@@ -19,7 +19,7 @@ namespace InsuranceProject.DTOs
         //public InsuranceScheme InsuranceScheme { get; set; }
 
         [ForeignKey("Customer")]
-        public Guid? CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
         //public Customer Customer { get; set; }
 
         [Required]

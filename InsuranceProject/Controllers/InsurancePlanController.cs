@@ -1,6 +1,7 @@
 ﻿using InsuranceProject.DTOs;
 using InsuranceProject.Helper;
 using InsuranceProject.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -17,7 +18,46 @@ namespace InsuranceProject.Controllers
             _service = service;
         }
 
-        [HttpGet("get")]
+        
+        [HttpPost, Authorize(Roles = "ADMIN")]
+        public IActionResult Add(InsurancePlanDto insurancePlanDto)
+        {
+            var existing = _service.GetByUserName(insurancePlanDto);
+            if (existing != null)
+            {
+                return NotFound();
+            }
+            var id = _service.Add(insurancePlanDto);
+            return Ok(id);
+        }
+
+        [HttpGet("{id}"), Authorize(Roles = "ADMIN,EMPLOYEE,AGENT,CUSTOMER")]
+        public IActionResult Get(Guid id)
+        {
+            var role = _service.Get(id);
+            return Ok(role);
+        }
+        [HttpPut, Authorize(Roles = "ADMIN")]
+        public IActionResult Update(InsurancePlanDto insurancePlanDto)
+        {
+            if (_service.Update(insurancePlanDto))
+            {
+                return Ok(insurancePlanDto);
+            }
+            return NotFound();
+        }
+
+        [HttpDelete("{id}"),Authorize(Roles ="ADMIN")]
+        public IActionResult Delete(Guid id)
+        {
+            if (_service.Delete(id))
+            {
+                return Ok(id);
+            }
+            return NotFound();
+        }
+
+        [HttpGet("get"), Authorize(Roles = "ADMIN,EMPLOYEE,AGENT,CUSTOMER")]
         public IActionResult GetAll([FromQuery] FilterParameter filterParameter)
         {
             var pagedCustomers = _service.GetAll(filterParameter);
@@ -37,43 +77,24 @@ namespace InsuranceProject.Controllers
             return Ok(pagedCustomers.Items);
         }
 
-        
-        [HttpPost]
-        public IActionResult Add(InsurancePlanDto insurancePlanDto)
+        [HttpGet("get2"), Authorize(Roles = "ADMIN,EMPLOYEE,AGENT,CUSTOMER")]
+        public IActionResult GetAlll([FromQuery] FilterParameter filterParameter)
         {
-            var existing = _service.GetByUserName(insurancePlanDto);
-            if (existing != null)
-            {
-                return NotFound();
-            }
-            var id = _service.Add(insurancePlanDto);
-            return Ok(id);
-        }
+            var pagedCustomers = _service.GetAlll(filterParameter);
 
-        [HttpGet("{id}")]
-        public IActionResult Get(Guid id)
-        {
-            var role = _service.Get(id);
-            return Ok(role);
-        }
-        [HttpPut]
-        public IActionResult Update(InsurancePlanDto insurancePlanDto)
-        {
-            if (_service.Update(insurancePlanDto))
+            var metadata = new
             {
-                return Ok(insurancePlanDto);
-            }
-            return NotFound();
-        }
+                pagedCustomers.TotalCount,
+                pagedCustomers.PageSize,
+                pagedCustomers.CurrentPage,
+                pagedCustomers.TotalPages,
+                pagedCustomers.HasNext,
+                pagedCustomers.HasPrevious,
+            };
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(Guid id)
-        {
-            if (_service.Delete(id))
-            {
-                return Ok(id);
-            }
-            return NotFound();
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+
+            return Ok(pagedCustomers.Items);
         }
     }
 }

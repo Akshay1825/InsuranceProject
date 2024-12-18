@@ -52,24 +52,20 @@ namespace InsuranceProject.Services
 
         public PagedResult<InsurancePlanDto> GetAll(FilterParameter filterParameter)
         {
-            var query = _repository.GetAll().AsNoTracking();
+            var query = _repository.GetAll().AsNoTracking().Where(x=>x.Status==true);
 
-            // Apply filtering based on the filter parameter (e.g., Name)
             if (!string.IsNullOrEmpty(filterParameter.Name))
             {
                 query = query.Where(p => p.PlanName.Contains(filterParameter.Name));
             }
 
-            // Calculate total count for pagination metadata
             int totalCount = query.Count();
 
-            // Apply pagination
             var pagedPlans = query
                 .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
                 .Take(filterParameter.PageSize)
                 .ToList();
 
-            // Map to DTOs using AutoMapper
             var planDtos = _mapper.Map<List<InsurancePlanDto>>(pagedPlans);
 
             // Create the paged result
@@ -84,16 +80,51 @@ namespace InsuranceProject.Services
                 HasPrevious = filterParameter.PageNumber > 1
             };
 
-            // Return the paginated result
+            return pagedResult;
+        }
+
+        public PagedResult<InsurancePlanDto> GetAlll(FilterParameter filterParameter)
+        {
+            var query = _repository.GetAll().AsNoTracking();
+
+            if (!string.IsNullOrEmpty(filterParameter.Name))
+            {
+                query = query.Where(p => p.PlanName.Contains(filterParameter.Name));
+            }
+
+            int totalCount = query.Count();
+
+            var pagedPlans = query
+                .Skip((filterParameter.PageNumber - 1) * filterParameter.PageSize)
+                .Take(filterParameter.PageSize)
+                .ToList();
+
+            var planDtos = _mapper.Map<List<InsurancePlanDto>>(pagedPlans);
+
+            // Create the paged result
+            var pagedResult = new PagedResult<InsurancePlanDto>
+            {
+                Items = planDtos,
+                TotalCount = totalCount,
+                PageSize = filterParameter.PageSize,
+                CurrentPage = filterParameter.PageNumber,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)filterParameter.PageSize),
+                HasNext = filterParameter.PageNumber < (int)Math.Ceiling(totalCount / (double)filterParameter.PageSize),
+                HasPrevious = filterParameter.PageNumber > 1
+            };
+
             return pagedResult;
         }
 
         public bool Update(InsurancePlanDto insurancePlanDto)
         {
-            var existingPolicy = _repository.Get(insurancePlanDto.PlanId);
+            var existingPolicy = _repository.GetAll().AsNoTracking().FirstOrDefault(x=>x.PlanId== insurancePlanDto.PlanId);
             if (existingPolicy != null)
             {
                 var policy = _mapper.Map<InsurancePlan>(insurancePlanDto);
+                //if(policy.Status==true)
+                //    policy.Status = false;
+                //else policy.Status = true;
                 _repository.Update(policy);
                 return true;
             }
@@ -102,7 +133,7 @@ namespace InsuranceProject.Services
 
         public InsurancePlan GetByUserName(InsurancePlanDto insurancePlanDto)
         {
-            var plan = _repository.GetAll().AsNoTracking().FirstOrDefault(x => x.PlanName == insurancePlanDto.PlanName);
+            var plan = _repository.GetAll().AsNoTracking().FirstOrDefault(x => x.PlanName == insurancePlanDto.PlanName && x.Status==true);
             return plan;
         }
     }

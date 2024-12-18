@@ -2,6 +2,7 @@
 using InsuranceProject.Helper;
 using InsuranceProject.Models;
 using InsuranceProject.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -19,11 +20,25 @@ namespace InsuranceProject.Controllers
             _commissionService = commissionService;
         }
 
-        [HttpGet("get")]
-        public IActionResult GetCommisson([FromQuery]Guid AgentId,[FromQuery] DateFilter dateFilter)
+        
+
+        [HttpPut, Authorize(Roles = "ADMIN,EMPLOYEE,AGENT")]
+        public IActionResult Update(Commission commission)
+        {
+            if (_commissionService.UpdateCustomer(commission))
+            {
+                return Ok(commission);
+            }
+            return NotFound();
+        }
+
+
+
+        [HttpGet("get"), Authorize(Roles = "ADMIN,EMPLOYEE,AGENT")]
+        public IActionResult GetCommisson([FromQuery] Guid AgentId, [FromQuery] DateFilter dateFilter)
         {
 
-            var commissions = _commissionService.GetAll(AgentId,dateFilter);
+            var commissions = _commissionService.GetAll(AgentId, dateFilter);
 
             if (commissions.Any())
             {
@@ -43,17 +58,7 @@ namespace InsuranceProject.Controllers
             return BadRequest("No data found");
         }
 
-        [HttpPut]
-        public IActionResult Update(Commission commission)
-        {
-            if (_commissionService.UpdateCustomer(commission))
-            {
-                return Ok(commission);
-            }
-            return NotFound();
-        }
-
-        [HttpGet("getAll")]
+        [HttpGet("getAll"), Authorize(Roles = "ADMIN,EMPLOYEE,AGENT")]
         public IActionResult GetAll([FromQuery] DateFilter pageParameter)
         {
             var pagedCustomers = _commissionService.GetAll(pageParameter);

@@ -1,5 +1,6 @@
 ﻿using InsuranceProject.DTOs;
 using InsuranceProject.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,27 +16,27 @@ namespace InsuranceProject.Controllers
             _roleService = roleService;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize(Roles = "AGENT,CUSTOMER,ADMIN,EMPLOYEE")]
         public IActionResult GetAll()
         {
             var rolesDto = _roleService.GetRoles();
             return Ok(rolesDto);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "AGENT,CUSTOMER,ADMIN,EMPLOYEE")]
         public IActionResult Add(RoleDto roleDto)
         {
             var id = _roleService.AddRole(roleDto);
             return Ok(id);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), Authorize(Roles = "AGENT,CUSTOMER,ADMIN,EMPLOYEE")]
         public IActionResult Get(Guid id)
         {
             var role = _roleService.GetById(id);
             return Ok(role);
         }
-        [HttpPut]
+        [HttpPut, Authorize(Roles = "AGENT,CUSTOMER,ADMIN,EMPLOYEE")]
         public IActionResult Update(RoleDto roleDto)
         {
             if (_roleService.UpdateRole(roleDto))
@@ -45,7 +46,7 @@ namespace InsuranceProject.Controllers
             return NotFound();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize(Roles = "AGENT,CUSTOMER,ADMIN,EMPLOYEE")]
         public IActionResult Delete(Guid id)
         {
             if (_roleService.DeleteRole(id))

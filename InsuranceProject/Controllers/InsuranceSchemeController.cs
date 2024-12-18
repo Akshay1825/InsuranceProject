@@ -3,6 +3,7 @@ using InsuranceProject.Exceptions;
 using InsuranceProject.Helper;
 using InsuranceProject.Models;
 using InsuranceProject.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -22,27 +23,34 @@ namespace InsuranceProject.Controllers
             _insurancePlanService = insurancePlanService;
         }
 
-        [HttpGet]
+        [HttpGet("getById"), Authorize(Roles = "ADMIN,EMPLOYEE,AGENT,CUSTOMER")]
+        public IActionResult GetAll([FromQuery] Guid id)
+        {
+            var schemes = _insuranceSchemeService.GetAllSchemes2(id);
+            return Ok(schemes);
+        }
+
+        [HttpGet, Authorize(Roles = "ADMIN,EMPLOYEE,AGENT,CUSTOMER")]
         public IActionResult GetAll()
         {
             var rolesDto = _insuranceSchemeService.GetAll();
             return Ok(rolesDto);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "ADMIN")]
         public IActionResult Add(InsuranceSchemeDto insuranceSchemeDto)
         {
             var id = _insuranceSchemeService.Add(insuranceSchemeDto);
             return Ok(id);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), Authorize(Roles = "ADMIN,EMPLOYEE,AGENT,CUSTOMER")]
         public IActionResult Get(Guid id)
         {
             var role = _insuranceSchemeService.Get(id);
             return Ok(role);
         }
-        [HttpPut]
+        [HttpPut, Authorize(Roles = "ADMIN")]
         public IActionResult Update(InsuranceSchemeDto insuranceSchemeDto)
         {
             if (_insuranceSchemeService.Update(insuranceSchemeDto))
@@ -52,7 +60,7 @@ namespace InsuranceProject.Controllers
             return NotFound();
         }
 
-        [HttpPut("Update")]
+        [HttpPut("Update"), Authorize(Roles = "ADMIN")]
         public IActionResult UpdateScheme(InsuranceSchemeDto insuranceSchemeDto)
         {
             if (_insuranceSchemeService.Update2(insuranceSchemeDto))
@@ -62,14 +70,13 @@ namespace InsuranceProject.Controllers
             return NotFound();
         }
 
-        [HttpGet("check-scheme-name")]
+        [HttpGet("check-scheme-name"), Authorize(Roles = "ADMIN")]
         public IActionResult CheckSchemeNameDuplicate(string name)
         {
             if (string.IsNullOrEmpty(name))
             {
                 return BadRequest(new { message = "Scheme name is required" });
             }
-
             try
             {
                 var exists = _insuranceSchemeService.CheckSchemeNameDuplicate(name);
@@ -81,7 +88,7 @@ namespace InsuranceProject.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize(Roles = "ADMIN")]
         public IActionResult Delete(Guid id)
         {
             if (_insuranceSchemeService.Delete(id))
@@ -91,7 +98,7 @@ namespace InsuranceProject.Controllers
             return NotFound();
         }
 
-        [HttpGet("getId")]
+        [HttpGet("getId"), Authorize(Roles = "ADMIN,EMPLOYEE,AGENT,CUSTOMER")]
         public IActionResult GetAll([FromQuery] FilterParameter filterParameter,[FromQuery]Guid id)
         {
             var pagedCustomers = _insuranceSchemeService.GetAll(filterParameter, id);
@@ -111,11 +118,6 @@ namespace InsuranceProject.Controllers
             return Ok(pagedCustomers);
         }
 
-        [HttpGet("getById")]
-        public IActionResult GetAll([FromQuery] Guid id)
-        {
-            var schemes = _insuranceSchemeService.GetAllSchemes2(id);
-            return Ok(schemes);
-        }
+        
     }
 }

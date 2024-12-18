@@ -13,5 +13,7 @@ namespace InsuranceProject.Services
         public bool Delete(Guid id);
 
         public InsurancePlan GetByUserName(InsurancePlanDto insurancePlanDto);
+
+        public PagedResult<InsurancePlanDto> GetAlll(FilterParameter filterParameter);
     }
 }

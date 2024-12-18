@@ -1,6 +1,7 @@
 ﻿using InsuranceProject.DTOs;
 using InsuranceProject.Helper;
 using InsuranceProject.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -17,27 +18,27 @@ namespace InsuranceProject.Controllers
             _service = service;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize(Roles = "ADMIN")]
         public IActionResult GetAll()
         {
             var rolesDto = _service.GetAll();
             return Ok(rolesDto);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "CUSTOMER")]
         public IActionResult Add(PaymentDto paymentDto)
         {
             var id = _service.Add(paymentDto);
             return Ok(id);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), Authorize(Roles = "ADMIN,EMPLOYEE,AGENT,CUSTOMER")]
         public IActionResult Get(Guid id)
         {
             var role = _service.Get(id);
             return Ok(role);
         }
-        [HttpPut]
+        [HttpPut, Authorize(Roles = "ADMIN")]
         public IActionResult Update(PaymentDto paymentDto)
         {
             if (_service.Update(paymentDto))
@@ -57,14 +58,14 @@ namespace InsuranceProject.Controllers
             return NotFound();
         }
 
-        [HttpGet("GetID")]
+        [HttpGet("GetID"),Authorize(Roles = "ADMIN,EMPLOYEE,CUSTOMER")]
         public IActionResult GetID([FromQuery]int index, [FromQuery]Guid policyId)
         {
             var payment = _service.GetID(index,policyId);
             return Ok(payment);
         }
 
-        [HttpGet("getAll")]
+        [HttpGet("getAll"), Authorize(Roles = "ADMIN,EMPLOYEE,AGENT,CUSTOMER")]
         public IActionResult GetAll([FromQuery] DateFilter dateFilter)
         {
             var pagedCustomers = _service.GetAll(dateFilter);

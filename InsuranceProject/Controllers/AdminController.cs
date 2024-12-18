@@ -1,5 +1,6 @@
 ﻿using InsuranceProject.DTOs;
 using InsuranceProject.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,35 +19,35 @@ namespace InsuranceProject.Controllers
             _policyService = policyService;
         }
 
-        [HttpGet]
+        [HttpGet,Authorize(Roles = "ADMIN")]
         public IActionResult GetAll()
         {
             var admins = _adminService.GetAll();
             return Ok(admins);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}"),Authorize(Roles = "ADMIN")]
         public IActionResult Get(Guid id)
         {
             var admin = _adminService.Get(id);
             return Ok(admin);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "ADMIN")]
         public IActionResult Add(AdminRegisterDto adminRegisterDto)
         {
             var adminId = _adminService.Add(adminRegisterDto);
             return Ok(adminId);
         }
 
-        [HttpPost("Policy")]
-        public IActionResult Add(PolicyDto policyDto)
-        {
-            var policyId = _policyService.Add(policyDto);
-            return Ok(policyId);
-        }
+        //[HttpPost("Policy")]
+        //public IActionResult Add(PolicyDto policyDto)
+        //{
+        //    var policyId = _policyService.Add(policyDto);
+        //    return Ok(policyId);
+        //}
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize(Roles = "ADMIN")]
         public IActionResult Delete(Guid id)
         {
             if (_adminService.Delete(id))
@@ -54,7 +55,7 @@ namespace InsuranceProject.Controllers
             return NotFound("Admin Not Found");
         }
 
-        [HttpPut]
+        [HttpPut, Authorize(Roles = "ADMIN")]
         public IActionResult Update(AdminDto adminDto)
         {
             if (_adminService.Update(adminDto))
@@ -62,14 +63,14 @@ namespace InsuranceProject.Controllers
             return NotFound("Admin not found");
         }
 
-        [HttpGet("getProfile")]
+        [HttpGet("getProfile"), Authorize(Roles = "ADMIN")]
         public IActionResult GetByUserName(string userName)
         {
             var admin = _adminService.GetByUserName(userName);
             return Ok(admin);
         }
 
-        [HttpPut("changepassword")]
+        [HttpPut("changepassword"), Authorize(Roles = "ADMIN")]
         public IActionResult ChangePassword(ChangePasswordDto changePasswordDto)
         {
             if (_adminService.ChangePassword(changePasswordDto))
