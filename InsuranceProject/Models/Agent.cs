@@ -20,6 +20,10 @@ namespace InsuranceProject.Models
         [Required]
         public long MobileNumber { get; set; }
 
+        public string? BankAccountNumber { get; set; }
+
+        public string? IfscCode { get; set; }
+
         public string? UserName { get; set; }
 
         public bool? Status { get; set; } = false;

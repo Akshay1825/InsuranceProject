@@ -12,10 +12,12 @@ namespace InsuranceProject.Services
     public class CommissionService:ICommissionService
     {
         private readonly IRepository<Commission> _repository;
+        private readonly IRepository<Agent> _agentRepository;
 
-        public CommissionService(IRepository<Commission> repository)
+        public CommissionService(IRepository<Commission> repository, IRepository<Agent> agentRepository)
         {
             _repository = repository;
+            _agentRepository = agentRepository;
         }
         public PageList<Commission> GetAll(Guid AgentId, DateFilter dateFilter)
         {
@@ -49,6 +51,43 @@ namespace InsuranceProject.Services
         public bool UpdateCustomer(Commission commission)
         {
             var existingCustomer = _repository.GetAll().AsNoTracking().Where(u => u.CommissionId == commission.CommissionId);
+
+            var agent = _agentRepository.GetAll().AsNoTracking().FirstOrDefault(x=>x.Id==commission.AgentId);
+
+            if (commission.Status==2)
+            {
+                var subject = "Commission Approval";
+                var roundedAmount = Math.Round(commission.Amount, 2);
+                var body = $@"
+          <p>Dear {agent.FirstName},</p>
+          <p>Your commission has been approved by NewInsurance</p>
+          <p>The Details are as below:</p>
+          <p>Policy Number : <b>{commission.policyNumber}</b></p>
+          <p>Commission Type : <b>{commission.CommissionType}</b></p>
+          <p>Commission Amount : <b>{roundedAmount}</b></p>
+          <p>In next 2-3 working days amount will be deposited in your registered bank account </p>
+          <p>Best regards,<br/>New-Insurance Team</p> ";
+
+                var emailService = new EmailService();
+                emailService.SendEmail(agent.Email, subject, body);
+            }
+            if (commission.Status==3)
+            {
+                var subject = "Commission Rejected";
+                var roundedAmount = Math.Round(commission.Amount, 2);
+                var body = $@"
+          <p>Dear {agent.FirstName},</p>
+          <p>Your commission has been Rejected by NewInsurance</p>
+          <p>The Details are as below:</p>
+          <p>Policy Number : <b>{commission.policyNumber}</b></p>
+          <p>Commission Type : <b>{commission.CommissionType}</b></p>
+          <p>Commission Amount : <b>{roundedAmount}</b></p>
+          <p>Kindly contact support team for further clarification</p>
+          <p>Best regards,<br/>New-Insurance Team</p> ";
+
+                var emailService = new EmailService();
+                emailService.SendEmail(agent.Email, subject, body);
+            }
             if (existingCustomer != null)
             {
                 _repository.Update(commission);

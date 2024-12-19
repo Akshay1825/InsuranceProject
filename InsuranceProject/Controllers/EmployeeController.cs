@@ -31,7 +31,7 @@ namespace InsuranceProject.Controllers
             var employee = _employeeService.GetById(id);
             return Ok(employee);
         }
-        [HttpPut,Authorize(Roles = "ADMIN")]
+        [HttpPut,Authorize(Roles = "ADMIN,EMPLOYEE")]
         public IActionResult Update(EmployeeDto employeeDto)
         {
             if (_employeeService.UpdateEmployee(employeeDto))

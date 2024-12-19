@@ -53,7 +53,6 @@ namespace InsuranceProject.Services
                 _commissionRepository.Add(commission);
             }
 
-
             var scheme = _schemeRepository.GetAll().FirstOrDefault(x => x.SchemeId == policydto.InsuranceSchemeId);
             var customer = _customerRepository.Get(policydto.CustomerId);
 
@@ -64,7 +63,7 @@ namespace InsuranceProject.Services
           <p>Dear {customer.FirstName},</p>
           <p>Your Policy Has Been Sucessfully Generated.</p>
           <p>Your Documents Have been sent for Verification</p>
-          <p>Kindly wait for approval your kyc-status will be updated soon</p>
+          <p>Kindly wait for approval your E-KYC status will be updated soon</p>
           <p>Looking forward to working with you. :) </p>
           <p>Best regards,<br/>New-Insurance Team</p> ";
 
@@ -154,6 +153,45 @@ namespace InsuranceProject.Services
         public bool UpdatePolicy(PolicyDto policydto)
         {
             var existingPolicy = _policyRepository.GetAll().AsNoTracking().FirstOrDefault(x => x.PolicyId == policydto.PolicyId); ;
+            
+            var customer = _customerRepository.GetAll().AsNoTracking().FirstOrDefault(x=>x.CustomerId == policydto.CustomerId);
+            
+            if(policydto.Status==1)
+            {
+                var subject = "E-KYC Successful";
+                var roundedAmount = Math.Round(policydto.PremiumAmount, 2);
+                var body = $@"
+          <p>Dear {customer.FirstName},</p>
+          <p>Your E-KYC has been Successfully Approved by NewInsurance</p>
+          <p>The Details are as below:</p>
+          <p>Policy Number : <b>{policydto.PolicyNumber}</b></p>
+          <p>Scheme Name : <b>{policydto.SchemeName}</b></p>
+          <p>Premium Amount : <b>{roundedAmount}</b></p>
+          <p>Kindly Pay Premiums on Time </p>
+          <p>Best regards,<br/>New-Insurance Team</p> ";
+
+                var emailService = new EmailService();
+                emailService.SendEmail(customer.Email, subject, body);
+            }
+
+            if (policydto.Status == 2)
+            {
+                var subject = "E-KYC Rejected";
+                var roundedAmount = Math.Round(policydto.PremiumAmount, 2);
+                var body = $@"
+          <p>Dear {customer.FirstName},</p>
+          <p>Your E-KYC has been Rejected by NewInsurance</p>
+          <p>The Details are as below:</p>
+          <p>Policy Number : <b>{policydto.PolicyNumber}</b></p>
+          <p>Scheme Name : <b>{policydto.SchemeName}</b></p>
+          <p>Premium Amount : <b>{roundedAmount}</b></p>
+          <p>Kindly Contact Support team for further clarification</p>
+          <p>Best regards,<br/>New-Insurance Team</p> ";
+
+                var emailService = new EmailService();
+                emailService.SendEmail(customer.Email, subject, body);
+            }
+
             if (existingPolicy != null)
             {
                 var policy = _mapper.Map<Policy>(policydto);

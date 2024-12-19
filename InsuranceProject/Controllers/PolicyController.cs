@@ -59,7 +59,7 @@ namespace InsuranceProject.Controllers
             return NotFound("Policy not found");
         }
 
-        [HttpPut("UpdatePolicy"), Authorize(Roles = "CUSTOMER,ADMIN")]
+        [HttpPut("UpdatePolicy"), Authorize(Roles = "CUSTOMER,ADMIN,EMPLOYEE")]
         public IActionResult UpdatePolicy(PolicyDto policyDto)
         {
             if (_policyService.UpdatePolicy(policyDto))

@@ -14,6 +14,10 @@ namespace InsuranceProject.DTOs
         [Required]
         [EmailAddress]
         public string Email { get; set; }
+
+        public string? BankAccountNumber { get; set; }
+
+        public string? IfscCode { get; set; }
         [Required]
         public long MobileNumber { get; set; }
 

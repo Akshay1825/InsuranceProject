@@ -33,19 +33,13 @@ namespace InsuranceProject.Controllers
             return Ok(admin);
         }
 
-        [HttpPost, Authorize(Roles = "ADMIN")]
+        [HttpPost]
         public IActionResult Add(AdminRegisterDto adminRegisterDto)
         {
             var adminId = _adminService.Add(adminRegisterDto);
             return Ok(adminId);
         }
-
-        //[HttpPost("Policy")]
-        //public IActionResult Add(PolicyDto policyDto)
-        //{
-        //    var policyId = _policyService.Add(policyDto);
-        //    return Ok(policyId);
-        //}
+        
 
         [HttpDelete("{id}"), Authorize(Roles = "ADMIN")]
         public IActionResult Delete(Guid id)

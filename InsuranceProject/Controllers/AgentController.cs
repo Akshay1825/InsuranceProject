@@ -53,7 +53,7 @@ namespace InsuranceProject.Controllers
             return NotFound("Agent Not Found");
         }
 
-        [HttpPut, Authorize(Roles = "EMPLOYEE,ADMIN")]
+        [HttpPut, Authorize(Roles = "EMPLOYEE,ADMIN,AGENT")]
         public IActionResult Update(AgentDto agentDto)
         {
             if (_agentService.Update(agentDto))

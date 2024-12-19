@@ -23,6 +23,10 @@ namespace InsuranceProject.DTOs
 
         public string? userName { get; set; }
 
+        public string? BankAccountNumber { get; set; }
+
+        public string? IfscCode { get; set; }
+
         public bool? Status { get; set; } = false;
         public double? CommisionEarned { get; set; }
         public Guid? UserId { get; set; }
